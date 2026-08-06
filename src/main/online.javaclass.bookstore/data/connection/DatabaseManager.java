@@ -12,24 +12,29 @@ public class DatabaseManager {
     private static final Logger log = LogManager.getLogger(DatabaseManager.class);
     private final ProxyConnection connection;
 
-    public DatabaseManager(String URL, String PASSWORD, String LOGIN) {
+    public DatabaseManager(String url, String login, String password) {
         try {
-        Connection connection = DriverManager.getConnection(URL, LOGIN, PASSWORD);
-        this.connection = new ProxyConnection(connection);
-    } catch (SQLException e){
-        throw new RuntimeException();
+            Class.forName("org.postgresql.Driver");
+            Connection connection = DriverManager.getConnection(url, login, password);
+            this.connection = new ProxyConnection(connection);
+        } catch (ClassNotFoundException e) {
+            log.error("PostgreSQL driver not found", e);
+            throw new RuntimeException("PostgreSQL driver not found", e);
+        } catch (SQLException e) {
+            log.error("Failed to connect to database: " + url, e);
+            throw new RuntimeException("Failed to connect to database: " + e.getMessage(), e);
         }
     }
 
-    public  Connection getconnection(){
+    public Connection getconnection() {
         return connection;
     }
 
-    public void close(){
+    public void close() {
         try {
-        connection.reallyClose();
-    }catch (SQLException e){
-        throw new RuntimeException();
+            connection.reallyClose();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to close connection", e);
         }
     }
 }

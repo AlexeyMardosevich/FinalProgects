@@ -2,7 +2,6 @@ package controller.command;
 
 import controller.command.impl.*;
 import data.BookDao;
-//import data.connection.DataSource;
 import data.connection.DatabaseManager;
 import data.dao.imp.BookDaoImpl;
 import service.BookService;
@@ -19,7 +18,7 @@ public class CommandFactory {
     public static final String LOGIN = "postgres";
     public static final String PASSWORD = "root";
     private CommandFactory() {
-        DatabaseManager databaseManager = new DatabaseManager(URL, LOGIN,PASSWORD);
+        DatabaseManager databaseManager = new DatabaseManager(URL, LOGIN, PASSWORD);
         BookDao bookDao = new BookDaoImpl(databaseManager);
         BookService bookService = new BookServiceImpl(bookDao);
         map = new HashMap<>();

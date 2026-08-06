@@ -14,7 +14,7 @@ public class Main {
     public static final String PASSWORD = "root";
 
     public static void main(String[] args) {
-        DatabaseManager databaseManager = new DatabaseManager(URL,PASSWORD,LOGIN);
+        DatabaseManager databaseManager = new DatabaseManager(URL, LOGIN, PASSWORD);
         UserDao userDao = new UserDaoImpl(databaseManager);
         UserService service = new UserServiceImpl(userDao);
         UserController controller = new UserController(service);
