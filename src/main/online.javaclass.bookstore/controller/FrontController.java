@@ -28,7 +28,7 @@ public class FrontController extends HttpServlet {
     }
 
     private void process(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String commandParam = req.getParameter("Command");
+        String commandParam = req.getParameter("command");
         Command command = CommandFactory.INSTANCE.getController(commandParam);
         String page;
         try {

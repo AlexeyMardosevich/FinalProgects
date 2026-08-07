@@ -3,13 +3,13 @@ package controller.command.impl;
 import controller.command.Command;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j;
 import service.BookService;
 import service.dto.BookDto;
 
 import java.math.BigDecimal;
 
-@Log4j2
+@Log4j
 @RequiredArgsConstructor
 public class AddBookCommand implements Command {
     private final BookService bookService;
