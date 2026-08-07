@@ -1,10 +1,10 @@
 package controller.command;
 
 import controller.command.impl.*;
-import data.BookDao;
+import data.dao.BookDao;
 //import data.connection.DataSource;
 import data.connection.DatabaseManager;
-import data.dao.imp.BookDaoImpl;
+import data.dao.impl.BookDaoImpl;
 import service.BookService;
 import service.impl.BookServiceImpl;
 

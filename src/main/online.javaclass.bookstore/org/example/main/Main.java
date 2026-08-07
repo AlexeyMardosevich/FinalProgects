@@ -2,8 +2,8 @@ package org.example.main;
 
 import controller.command.impl.UserController;
 import data.connection.DatabaseManager;
-import data.UserDao;
-import data.dao.imp.UserDaoImpl;
+import data.dao.UserDao;
+import data.dao.impl.UserDaoImpl;
 import data.entities.User;
 import service.UserService;
 import service.impl.UserServiceImpl;

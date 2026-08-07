@@ -1,16 +1,17 @@
-package data.dao.imp;
+package data.dao.impl;
 
-import data.UserDao;
-import data.entities.User;
+import data.dao.UserDao;
+import data.dto.UserDto;
 import data.connection.DatabaseManager;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import service.dto.UserDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Log4j
+@RequiredArgsConstructor
 public class UserDaoImpl implements UserDao {
 
     public static final String GET_ALL_USERS = "SELECT * FROM users";
@@ -19,16 +20,12 @@ public class UserDaoImpl implements UserDao {
     public static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, role = ?, first_name = ?, last_name = ? WHERE Id = ?";
     public static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
 
-    private static final Logger log = LogManager.getLogger(UserDaoImpl.class);
 
     private final DatabaseManager databaseManager;
 
-    public UserDaoImpl(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
 
     @Override
-    public User find(Long id) {
+    public UserDto find(Long id) {
         try (Connection connection = databaseManager.getconnection();
              PreparedStatement preparedStatement = connection.prepareStatement(GET_USERS)){
             preparedStatement.setLong(1,id);
@@ -42,8 +39,8 @@ public class UserDaoImpl implements UserDao {
         return null;
     }
 
-    public List<User> getAll() {
-        List<User> userList = new ArrayList<>();
+    public List<UserDto> getAll() {
+        List<UserDto> userList = new ArrayList<>();
         try (Connection connection = databaseManager.getconnection();
             Statement statement = connection.createStatement()){
             ResultSet resultSet = statement.executeQuery(GET_ALL_USERS);
@@ -57,10 +54,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User create(User user) {
+    public UserDto create(UserDto userDto) {
     try (Connection connection = databaseManager.getconnection();
          PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_USER, Statement.RETURN_GENERATED_KEYS)){
-         preparedStatementForInsert(preparedStatement, user);
+         preparedStatementForInsert(preparedStatement, userDto);
          preparedStatement.executeUpdate();
          ResultSet resultSet = preparedStatement.getGeneratedKeys();
          if (resultSet.next()){
@@ -70,19 +67,19 @@ public class UserDaoImpl implements UserDao {
     } catch (SQLException e) {
         throw new RuntimeException(e);
     }
-    throw new RuntimeException("Couldn't creat user [" + user + "]");
+    throw new RuntimeException("Couldn't creat user [" + userDto + "]");
     }
 
     @Override
-    public User update(User user) {
+    public UserDto update(UserDto userDto) {
         try (Connection connection = databaseManager.getconnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER)) {
-            preparedStatementForUpdate(preparedStatement, user);
+            preparedStatementForUpdate(preparedStatement, userDto);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return find(user.getId());
+        return find(userDto.getId());
     }
 
     @Override
@@ -96,28 +93,28 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    private User mapRow(ResultSet resultSet) throws SQLException {
-                User user = new User();
-                user.setId(resultSet.getLong("id"));
-                user.setEmail(resultSet.getString("email"));
-                user.setPassword(resultSet.getString("password"));
-                user.setRole(resultSet.getString("role"));
-                user.setFirstName(resultSet.getString("first_Name"));
-                user.setLastName(resultSet.getString("last_Name"));
-        return user;
+    private UserDto mapRow(ResultSet resultSet) throws SQLException {
+        UserDto userDto = new UserDto();
+        userDto.setId(resultSet.getLong("id"));
+        userDto.setEmail(resultSet.getString("email"));
+        userDto.setPassword(resultSet.getString("password"));
+        userDto.setRole(resultSet.getString("role"));
+        userDto.setFirstName(resultSet.getString("first_Name"));
+        userDto.setLastName(resultSet.getString("last_Name"));
+        return userDto;
     }
 
-    private static int preparedStatementForInsert(PreparedStatement preparedStatement, User user) throws SQLException {
+    private static int preparedStatementForInsert(PreparedStatement preparedStatement, UserDto userDto) throws SQLException {
         int index = 1;
-        preparedStatement.setString(index++, user.getEmail());
-        preparedStatement.setString(index++, user.getPassword());
-        preparedStatement.setString(index++, user.getRole());
-        preparedStatement.setString(index++, user.getFirstName());
-        preparedStatement.setString(index++, user.getLastName());
+        preparedStatement.setString(index++, userDto.getEmail());
+        preparedStatement.setString(index++, userDto.getPassword());
+        preparedStatement.setString(index++, userDto.getRole());
+        preparedStatement.setString(index++, userDto.getFirstName());
+        preparedStatement.setString(index++, userDto.getLastName());
         return index;
     }
-    private static void preparedStatementForUpdate(PreparedStatement preparedStatement, User user) throws SQLException{
-        int index = preparedStatementForInsert(preparedStatement, user);
-        preparedStatement.setLong(index, user.getId());
+    private static void preparedStatementForUpdate(PreparedStatement preparedStatement, UserDto userDto) throws SQLException{
+        int index = preparedStatementForInsert(preparedStatement, userDto);
+        preparedStatement.setLong(index, userDto.getId());
     }
 }

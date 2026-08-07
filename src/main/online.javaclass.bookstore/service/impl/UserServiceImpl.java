@@ -1,6 +1,6 @@
 package service.impl;
 
-import data.UserDao;
+import data.dao.UserDao;
 import data.entities.User;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
