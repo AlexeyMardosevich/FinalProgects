@@ -1,12 +1,16 @@
 package controller.command;
 
 import controller.command.impl.*;
-import data.dao.BookDao;
-//import data.connection.DataSource;
 import data.connection.DatabaseManager;
-import data.dao.impl.BookDaoImpl;
+import data.repository.BookRepository;
+import data.repository.UserRepository;
+import data.repository.impl.BookRepositoryImpl;
+import data.repository.impl.UserRepositoryImpl;
 import service.BookService;
+import service.UserService;
 import service.impl.BookServiceImpl;
+import service.impl.UserServiceImpl;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,14 +24,19 @@ public class CommandFactory {
     public static final String PASSWORD = "root";
     private CommandFactory() {
         DatabaseManager databaseManager = new DatabaseManager(URL, LOGIN,PASSWORD);
-        BookDao bookDao = new BookDaoImpl(databaseManager);
-        BookService bookService = new BookServiceImpl(bookDao);
+        BookRepository bookRepository = new BookRepositoryImpl();
+        UserRepository userRepository = new UserRepositoryImpl();
+        BookService bookService = new BookServiceImpl(bookRepository);
+        UserService userService = new UserServiceImpl(userRepository);
         map = new HashMap<>();
         map.put("book", new BookCommand(bookService));
         map.put("books", new BooksCommand(bookService));
         map.put("error", new ErrorCommand());
         map.put("add_book_form", new AddBookFormCommand());
         map.put("add_book", new AddBookCommand(bookService));
+        map.put("login", new LoginCommand(userService));
+        map.put("login_form_command", new LoginFormCommand());
+        map.put("logout_command", new LogoutCommand());
     }
 
     public Command getController(String command) {

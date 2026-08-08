@@ -5,6 +5,8 @@ import data.connection.DatabaseManager;
 import data.dao.UserDao;
 import data.dao.impl.UserDaoImpl;
 import data.entities.User;
+import data.repository.UserRepository;
+import data.repository.impl.UserRepositoryImpl;
 import service.UserService;
 import service.impl.UserServiceImpl;
 
@@ -13,10 +15,11 @@ public class Main {
     public static final String LOGIN = "postgres";
     public static final String PASSWORD = "root";
 
-    public static void main(String[] args) {
+  /*  public static void main(String[] args) {
         DatabaseManager databaseManager = new DatabaseManager(URL,LOGIN,PASSWORD);
         UserDao userDao = new UserDaoImpl(databaseManager);
-        UserService service = new UserServiceImpl(userDao);
+        UserRepository userRepository = new UserRepositoryImpl();
+        UserService service = new UserServiceImpl(userRepository;
         UserController controller = new UserController(service);
 
 
@@ -35,5 +38,6 @@ public class Main {
         user.setRole("user");
         userDao.create(user);
         System.out.println("----------");
-    }
+}
+*/
 }

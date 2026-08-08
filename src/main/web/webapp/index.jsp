@@ -8,7 +8,12 @@
 <jsp:include page="jsp/navbar.jsp"/>
 <h1>Bookstore</h1>
 <img src="images/bookstore.png" alt="Bookstore">
-    <h2>Welcome to bookstore, dear Guest!</h2>
+<c:if test="${sessionScope.user != null}">
+    <h2>Welcome to bookstore, dear ${sessionScope.user.firstName && sessionScope.user.lastName}!</h2>
+</c:if>
+<c:if test="${sessionScope.user == null}">
+<h2>Welcome to bookstore, dear Guest!</h2>
+</c:if>
     <a href="controller?command=books">Catalog</a>
 </body>
 </html>

@@ -1,9 +1,8 @@
-package data.repository;
+package service;
 
 import java.util.List;
 
-public interface AbstractRepository<K, T> {
-
+public interface AbstractService <K, T>{
     T find(K id);
 
     List<T> getAll();

@@ -12,11 +12,11 @@ import data.entities.Book;
 import data.entities.Order;
 import data.entities.OrderItem;
 import data.entities.User;
+import data.repository.EntityDtoMapper;
 import data.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,22 +26,16 @@ public class OrderRepositoryImpl implements OrderRepository {
     private final UserDao userDao;
     private final OrderItemDao orderItemDao;
     private final BookDao bookDao;
+    private final EntityDtoMapper entityDtoMapper;
 
     @Override
-    public Order find() {
-        OrderDto orderDto = orderDao.find(find().getId());
+    public Order find(Long id) {
+        OrderDto orderDto = orderDao.find(id);
         Order order = new Order();
-        order.setId(orderDto.getId());
-        order.setCoast(orderDto.getCoast());
-        order.setStatus(Order.Status.valueOf(orderDto.getStatus().toString()));
-        UserDto userDto = userDao.find(find().getId());
+        entityDtoMapper.toDto(order);
+        UserDto userDto = userDao.find(id);
         User user = new User();
-        user.setId(userDto.getId());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
+        entityDtoMapper.toEntity(userDto);
         order.setUser(user);
         List<OrderItemDto> orderItemDtos = orderItemDao.findAllByOrderId(order.getId());
         List<OrderItem> orderItems = new ArrayList<>();
@@ -50,7 +44,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             orderItem.setQuantity(orderItemDto.getQuantity());
             orderItem.setPrice(orderItemDto.getPrice());
             orderItem.setId(orderItemDto.getId());
-            BookDto bookDto = bookDao.find(find().getId());
+            BookDto bookDto = bookDao.find(id);
             Book book = new Book();
             book.setId(bookDto.getId());
             book.setName(bookDto.getName());
