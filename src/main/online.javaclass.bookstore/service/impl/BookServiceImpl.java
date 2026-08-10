@@ -1,6 +1,5 @@
 package service.impl;
 
-import data.dao.BookDao;
 import data.entities.Book;
 import data.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-    //private final BookDao bookDao;
     private final BookRepository bookRepository;
 
 

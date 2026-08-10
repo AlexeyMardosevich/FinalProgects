@@ -4,6 +4,8 @@ import data.entities.User;
 import data.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import mapper.EntityDtoMapper;
+import mapper.ServiceDtoMapper;
 import service.exception.AppException;
 import service.dto.UserDto;
 import service.UserService;
@@ -15,17 +17,17 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ServiceDtoMapper serviceDtoMapper;
+    private final DigestServiceImpl digestService;
 
     @Override
-    public User login(String email, String password) {
+    public UserDto login(String email, String password) {
         User user = userRepository.login(email, password);
-        if (user == null) {
-            throw new RuntimeException("no user with email: " + email);
+        String hashed = digestService.hash(password);
+        if (user == null || !user.getPassword().equals(hashed)) {
+            throw new RuntimeException("Invalid login entrapment" + email);
         }
-        if (!user.getPassword().equals(password)) {
-            throw new RuntimeException("Wrong password for user: " + email);
-        }
-        return user;
+        return serviceDtoMapper.toDto(user);
     }
 
     @Override
@@ -47,10 +49,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = toEntity(userDto);
-        //должна быть валидация (проверка логина, пароля и т.д)
+        log.debug("Service call, Create new user");
+        //Валидация
+        User user = serviceDtoMapper.toEntity(userDto);
+        String originalPassword = userDto.getPassword();
+        String hashed = digestService.hash(originalPassword);;
+        user.setPassword(hashed);
         User created = userRepository.create(user);
-        return toDto(created);
+        return serviceDtoMapper.toDto(created);
     }
 
     @Override

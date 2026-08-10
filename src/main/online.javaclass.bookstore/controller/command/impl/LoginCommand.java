@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import service.UserService;
+import service.dto.UserDto;
 
 
 @Log4j
@@ -18,9 +19,9 @@ public class LoginCommand implements Command {
     public String execute(HttpServletRequest req) {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
-        User user = userService.login(email, password);
+        UserDto userDto = userService.login(email, password);
         HttpSession session = req.getSession();
-        session.setAttribute("user", user);
+        session.setAttribute("user", userDto);
         return "index.jsp";
     }
 }

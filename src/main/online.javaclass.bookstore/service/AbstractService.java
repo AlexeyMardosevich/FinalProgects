@@ -7,9 +7,9 @@ public interface AbstractService <K, T>{
 
     List<T> getAll();
 
-    T create (T entity);
+    T create (T Dto);
 
-    T update (T entity);
+    T update (T Dto);
 
     boolean deleteById(K id);
 }

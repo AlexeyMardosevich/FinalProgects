@@ -1,4 +1,4 @@
-package data.repository;
+package mapper;
 
 import data.dto.OrderDto;
 import data.dto.OrderItemDto;
@@ -18,6 +18,16 @@ public class EntityDtoMapper {
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         return user;
+    }
+    public UserDto toDto(User user){
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setPassword(user.getPassword());
+        userDto.setRole(user.getRole());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        return userDto;
     }
 
     public OrderDto toDto(Order order){

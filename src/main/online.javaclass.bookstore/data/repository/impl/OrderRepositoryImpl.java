@@ -12,7 +12,7 @@ import data.entities.Book;
 import data.entities.Order;
 import data.entities.OrderItem;
 import data.entities.User;
-import data.repository.EntityDtoMapper;
+import mapper.EntityDtoMapper;
 import data.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 

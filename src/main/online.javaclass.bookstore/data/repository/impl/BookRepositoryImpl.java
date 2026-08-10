@@ -1,5 +1,6 @@
 package data.repository.impl;
 
+import data.entities.Book;
 import data.entities.User;
 import data.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,24 +11,23 @@ import java.util.List;
 @Log4j
 public class BookRepositoryImpl implements BookRepository {
 
-
     @Override
-    public User find(Long id) {
+    public Book find(Long id) {
         return null;
     }
 
     @Override
-    public List<User> getAll() {
+    public List<Book> getAll() {
         return List.of();
     }
 
     @Override
-    public User create(User entity) {
+    public Book create(Book entity) {
         return null;
     }
 
     @Override
-    public User update(User entity) {
+    public Book update(Book entity) {
         return null;
     }
 

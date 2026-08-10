@@ -6,15 +6,18 @@ import data.repository.BookRepository;
 import data.repository.UserRepository;
 import data.repository.impl.BookRepositoryImpl;
 import data.repository.impl.UserRepositoryImpl;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import service.BookService;
 import service.UserService;
 import service.impl.BookServiceImpl;
 import service.impl.UserServiceImpl;
-
-
 import java.util.HashMap;
 import java.util.Map;
 
+
+@Log4j
+@RequiredArgsConstructor
 public class CommandFactory {
     private final Map<String, Command> map;
 
