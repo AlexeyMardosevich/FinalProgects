@@ -19,6 +19,7 @@ public class UserDaoImpl implements UserDao {
     public static final String ADD_NEW_USER = "INSERT INTO users (email, password, role, first_name, last_name) VALUES (?,?,?,?,?)";
     public static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, role = ?, first_name = ?, last_name = ? WHERE Id = ?";
     public static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
+    private static final String FIND_BY_EMAIL = "SELECT FROM users (id, email, password, role, first_name, last_name) WHERE email = ?";
 
 
     private final DatabaseManager databaseManager;
@@ -27,14 +28,30 @@ public class UserDaoImpl implements UserDao {
     @Override
     public UserDto find(Long id) {
         try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_USERS)){
-            preparedStatement.setLong(1,id);
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_USERS)) {
+            preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return mapRow(resultSet);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to find user by id: " + id, e);
+        }
+        return null;
+    }
+
+    @Override
+    public UserDto findByEmail(String email) {
+        try (Connection connection = databaseManager.getconnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_EMAIL)) {
+            preparedStatement.setString(1, email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapRow(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find user by email: " + email, e);
         }
         return null;
     }
@@ -42,32 +59,32 @@ public class UserDaoImpl implements UserDao {
     public List<UserDto> getAll() {
         List<UserDto> userList = new ArrayList<>();
         try (Connection connection = databaseManager.getconnection();
-            Statement statement = connection.createStatement()){
+             Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(GET_ALL_USERS);
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 userList.add(mapRow(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to get all users", e);
         }
         return userList;
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-    try (Connection connection = databaseManager.getconnection();
-         PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_USER, Statement.RETURN_GENERATED_KEYS)){
-         preparedStatementForInsert(preparedStatement, userDto);
-         preparedStatement.executeUpdate();
-         ResultSet resultSet = preparedStatement.getGeneratedKeys();
-         if (resultSet.next()){
-             Long id = resultSet.getLong("id");
-            return find(id);
-         }
-    } catch (SQLException e) {
-        throw new RuntimeException(e);
-    }
-    throw new RuntimeException("Couldn't creat user [" + userDto + "]");
+        try (Connection connection = databaseManager.getconnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_USER, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatementForInsert(preparedStatement, userDto);
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                return find(id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException("Couldn't creat user [" + userDto + "]");
     }
 
     @Override
@@ -77,7 +94,7 @@ public class UserDaoImpl implements UserDao {
             preparedStatementForUpdate(preparedStatement, userDto);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to update user with id: " + userDto.getId(), e);
         }
         return find(userDto.getId());
     }
@@ -85,11 +102,11 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean deleteById(Long Id) {
         try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER)){
-            preparedStatement.setLong(1,Id);
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER)) {
+            preparedStatement.setLong(1, Id);
             return preparedStatement.executeUpdate() == 1;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to delete user with id: " + Id, e);
         }
     }
 
@@ -104,17 +121,16 @@ public class UserDaoImpl implements UserDao {
         return userDto;
     }
 
-    private static int preparedStatementForInsert(PreparedStatement preparedStatement, UserDto userDto) throws SQLException {
-        int index = 1;
-        preparedStatement.setString(index++, userDto.getEmail());
-        preparedStatement.setString(index++, userDto.getPassword());
-        preparedStatement.setString(index++, userDto.getRole());
-        preparedStatement.setString(index++, userDto.getFirstName());
-        preparedStatement.setString(index++, userDto.getLastName());
-        return index;
+    private static void preparedStatementForInsert(PreparedStatement statement, UserDto userDto) throws SQLException {
+        statement.setString(1, userDto.getEmail());
+        statement.setString(2, userDto.getPassword());
+        statement.setString(3, userDto.getRole());
+        statement.setString(4, userDto.getFirstName());
+        statement.setString(5, userDto.getLastName());
     }
-    private static void preparedStatementForUpdate(PreparedStatement preparedStatement, UserDto userDto) throws SQLException{
-        int index = preparedStatementForInsert(preparedStatement, userDto);
-        preparedStatement.setLong(index, userDto.getId());
+
+    private static void preparedStatementForUpdate(PreparedStatement preparedStatement, UserDto userDto) throws SQLException {
+        preparedStatementForInsert(preparedStatement, userDto);
+        preparedStatement.setLong(6, userDto.getId());
     }
 }

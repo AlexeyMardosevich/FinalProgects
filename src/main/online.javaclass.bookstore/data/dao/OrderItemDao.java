@@ -4,6 +4,6 @@ import data.dto.OrderItemDto;
 
 import java.util.List;
 
-public interface OrderItemDao extends AbstractDao<Long, OrderItemDao>{
+public interface OrderItemDao extends AbstractDao<Long, OrderItemDto>{
     List<OrderItemDto> findAllByOrderId(Long OrderId);
 }

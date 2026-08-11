@@ -32,7 +32,7 @@ public class EntityDtoMapper {
 
     public OrderDto toDto(Order order){
         OrderDto orderDto = new OrderDto();
-        orderDto.setCoast(orderDto.getCoast());
+        orderDto.setCost(orderDto.getCost());
         orderDto.setId(orderDto.getId());
         orderDto.setUserId(order.getUser().getId());
         orderDto.setStatus(OrderDto.Status.valueOf(order.getStatus().toString()));

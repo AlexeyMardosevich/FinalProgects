@@ -9,7 +9,7 @@ public class OrderDto {
     private Long id;
     private Long userId;
     private Status status;
-    private BigDecimal coast;
+    private BigDecimal cost;
 
     public enum Status {
         PENDING, PAID, DELIVERED, CANCELED

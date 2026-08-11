@@ -6,6 +6,7 @@ import data.dto.BookDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,21 +99,17 @@ public class BookDaoImpl implements BookDao {
         bookDto.setId(resultSet.getLong("id"));
         bookDto.setName(resultSet.getString("name"));
         bookDto.setAuthor(resultSet.getString("author"));
-        bookDto.getPrice();
-
+        bookDto.setPrice(resultSet.getBigDecimal("price"));
         return bookDto;
     }
 
-    private static int preparedStatementForInsert(PreparedStatement preparedStatement, BookDto bookDto) throws SQLException {
-        int index = 1;
-        preparedStatement.setString(index++, bookDto.getName());
-        preparedStatement.setString(index++, bookDto.getAuthor());
-        preparedStatement.setBigDecimal(index++, bookDto.getPrice());
-        return index;
+    private static void preparedStatementForInsert(PreparedStatement preparedStatement, BookDto bookDto) throws SQLException {
+        preparedStatement.setString(1, bookDto.getName());
+        preparedStatement.setString(2, bookDto.getAuthor());
+        preparedStatement.setBigDecimal(3, bookDto.getPrice());
     }
 
     private static void preparedStatementForUpdate(PreparedStatement preparedStatement, BookDto bookDto) throws SQLException {
-        int index = preparedStatementForInsert(preparedStatement, bookDto);
-        preparedStatement.setLong(index, bookDto.getId());
+        preparedStatement.setLong(4, bookDto.getId());
     }
 }
