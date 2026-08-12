@@ -14,15 +14,30 @@ import java.util.List;
 @Log4j
 @RequiredArgsConstructor
 public class BookDaoImpl implements BookDao {
-    public static final String GET_ALL_BOOKS = "SELECT * FROM books";
-    public static final String GET_BOOK = "SELECT * FROM books WHERE id = ?";
+    public static final String GET_ALL_BOOKS = "SELECT b.id, b.name, b.author, b.price FROM books b";
+    public static final String GET_ALL_BOOKS_PAGE = "SELECT b.id, b.name, b.author, b.price " +
+                                                    "FROM books b ORDER BY b.id LIMIT ? OFFSET ?";
+    public static final String GET_BOOK = "SELECT b.id, b.name, b.author, b.price FROM books b WHERE id = ?";
     public static final String ADD_NEW_BOOK = "INSERT INTO books (name, author,price) VALUES (?,?,?)";
     public static final String UPDATE_BOOK = "UPDATE books SET name = ?, author = ?, price = ? WHERE Id = ?";
     public static final String DELETE_BOOK = "DELETE FROM books WHERE id = ?";
-
+    private static final String COUNT_ALL_BOOKS = "SELECT COUNT(*) FROM books";
 
     private final DatabaseManager databaseManager;
 
+    @Override
+    public int countAll() {
+        try (Connection connection = databaseManager.getconnection();
+             PreparedStatement statement = connection.prepareStatement(COUNT_ALL_BOOKS);
+             ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't count all books", e);
+        }
+    }
 
     @Override
     public BookDto find(Long id) {
@@ -45,6 +60,23 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = databaseManager.getconnection();
              Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(BookDaoImpl.GET_ALL_BOOKS);
+            while (resultSet.next()) {
+                bookList.add(mapRow(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return bookList;
+    }
+
+    @Override
+    public List<BookDto> getAll(int limit, int offset) {
+        List<BookDto> bookList = new ArrayList<>();
+        try (Connection connection = databaseManager.getconnection();
+             PreparedStatement statement = connection.prepareStatement(GET_ALL_BOOKS_PAGE)) {
+            statement.setInt(1, limit);
+            statement.setInt(2, offset);
+            ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 bookList.add(mapRow(resultSet));
             }
@@ -92,6 +124,7 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     private BookDto mapRow(ResultSet resultSet) throws SQLException {

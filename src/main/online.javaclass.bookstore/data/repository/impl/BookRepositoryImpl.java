@@ -1,7 +1,8 @@
 package data.repository.impl;
 
+import data.dao.BookDao;
+import data.dto.BookDto;
 import data.entities.Book;
-import data.entities.User;
 import data.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -9,30 +10,45 @@ import lombok.extern.log4j.Log4j;
 import java.util.List;
 
 @Log4j
+@RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
 
+    private  final BookDao bookDao;
+
     @Override
-    public Book find(Long id) {
-        return null;
+    public List<BookDto> getAll(int size, int offset) {
+        return bookDao.getAll(size, offset);
     }
 
     @Override
-    public List<Book> getAll() {
-        return List.of();
+    public int countAll() {
+        public int countAll() {
+            return bookDao.countAll();
+        }
     }
 
     @Override
-    public Book create(Book entity) {
-        return null;
+    public BookDto find(Long id) {
+        return bookDao.find(id);
     }
 
     @Override
-    public Book update(Book entity) {
-        return null;
+    public List<BookDto> getAll() {
+        return bookDao.getAll();
+    }
+
+    @Override
+    public BookDto create(Book bookDto) {
+        return bookDao.create(bookDto);
+    }
+
+    @Override
+    public BookDto update(BookDto bookDto) {
+        return bookDao.update(bookDto);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return false;
+        return bookDao.deleteById(id);
     }
 }

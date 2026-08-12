@@ -1,9 +1,11 @@
 package service.impl;
 
+import data.dto.PageableDto;
 import data.entities.Book;
 import data.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import mapper.ServiceDtoMapper;
 import service.BookService;
 import service.dto.BookDto;
 import service.exception.AppException;
@@ -15,23 +17,43 @@ import java.util.List;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+    private final ServiceDtoMapper serviceDtoMapper;
 
+    @Override
+    public int countAll() {
+        return bookRepository.countAll();
+    }
 
     @Override
     public BookDto find(Long id) {
-        Book book = bookRepository.find(id);
-        if (book == null) {
+        BookDto bookDto = bookRepository.find(id);
+        if (bookDto == null) {
             throw new AppException("Couldn't find book with id:" + id);
         }
-        return toDto(book);
+        return toDto(bookDto);
     }
 
     @Override
     public List<BookDto> getAll() {
         return bookRepository.getAll().stream().
-                map(this::toDto).
+                map(serviceDtoMapper::toDto).
                 toList();
     }
+    public List<BookDto> getAll(PageableDto pageableDto) {
+        List<BookDto> books = bookRepository.getAll(pageableDto.getPageSize(), pageableDto.getOffset()).stream().
+                map(serviceDtoMapper::toDto).
+                toList();
+        int countAll = bookRepository.countAll();
+        int pages = countAll / pageableDto.getPageSize();
+        if (countAll % pageableDto.getPageSize() != 0) {
+            pages++;
+        }
+        pageableDto.setTotalItems(countAll);
+        pageableDto.setTotalPages(pages);
+
+        return books;
+    }
+
 
     @Override
     public BookDto create(BookDto bookDto) {

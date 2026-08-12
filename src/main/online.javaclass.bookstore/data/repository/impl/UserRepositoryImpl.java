@@ -1,5 +1,6 @@
 package data.repository.impl;
 
+import data.entities.Book;
 import data.entities.User;
 import data.dao.UserDao;
 import data.repository.UserRepository;
@@ -55,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User create(User entity) {
+    public User create(Book entity) {
         return null;
     }
 

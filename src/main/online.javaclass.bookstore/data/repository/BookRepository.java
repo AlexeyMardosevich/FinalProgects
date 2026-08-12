@@ -1,8 +1,10 @@
 package data.repository;
 
 import data.dto.BookDto;
-import data.entities.Book;
-import data.entities.User;
+
+import java.util.List;
 
 public interface BookRepository extends AbstractRepository<Long, BookDto>{
+    List<BookDto> getAll(int size, int offset);
+    int countAll();
 }

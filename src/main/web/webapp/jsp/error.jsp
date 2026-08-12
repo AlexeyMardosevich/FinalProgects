@@ -1,13 +1,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html>
 <head>
-    <title><Error Page</title>
+    <title><fmt:message key="error.ErrorPage"/></title>
     <link rel="stylesheet" href="css/style.scc">
 </head>
 <body>
 <jsp:include page="navbar.jsp"/>
-<h1>Error</h1>
-<p>Something went wrong!</p>
+<h1><fmt:message key="error.Error"/></h1>
+<p><fmt:message key="error.MessageError"/></p>
 <p>${requestScope.massage}</p>
 </body>
 </html>

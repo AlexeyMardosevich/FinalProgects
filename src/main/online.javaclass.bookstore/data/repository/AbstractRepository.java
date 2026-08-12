@@ -1,5 +1,7 @@
 package data.repository;
 
+import data.entities.Book;
+
 import java.util.List;
 
 public interface AbstractRepository<K, T> {
@@ -8,7 +10,7 @@ public interface AbstractRepository<K, T> {
 
     List<T> getAll();
 
-    T create (T entity);
+    T create (Book entity);
 
     T update (T entity);
 

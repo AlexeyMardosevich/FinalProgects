@@ -1,18 +1,19 @@
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Add new book</title>
+    <title><fmt:message key="addBook.Title"/></title>
     <link rel="stylesheet" href="css/style.scc">
 </head>
 <body>
 <jsp:include page="navbar.jsp"/>
-<h1>Add new book</h1>
+<h1><fmt:message key="addBook.AddNewBook"/></h1>
 <form action="controller?command=add_book" method="post">
-    <label for="input-name">Name</label>
+    <label for="input-name"><fmt:message key="addBook.Name"/></label>
     <input id="input-name" type="text" name="name">
-    <label for="input-author">Author</label>
+    <label for="input-author"><fmt:message key="addBook.Author"/></label>
     <input id="input-author" type="text" name="author">
-    <label for="input-price">Price</label>
+    <label for="input-price"><fmt:message key="addBook.Price"/></label>
     <input id="input-price" type="number" name="price">
     <br/>
     <input type="submit" name="Create">

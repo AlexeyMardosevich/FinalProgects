@@ -2,12 +2,18 @@ package controller.command;
 
 import controller.command.impl.*;
 import data.connection.DatabaseManager;
+import data.dao.BookDao;
+import data.dao.UserDao;
+import data.dao.impl.BookDaoImpl;
+import data.dao.impl.UserDaoImpl;
+import data.dto.BookDto;
 import data.repository.BookRepository;
 import data.repository.UserRepository;
 import data.repository.impl.BookRepositoryImpl;
 import data.repository.impl.UserRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import mapper.ServiceDtoMapper;
 import service.BookService;
 import service.UserService;
 import service.impl.BookServiceImpl;
@@ -27,10 +33,13 @@ public class CommandFactory {
     public static final String PASSWORD = "root";
     private CommandFactory() {
         DatabaseManager databaseManager = new DatabaseManager(URL, LOGIN,PASSWORD);
-        BookRepository bookRepository = new BookRepositoryImpl();
-        UserRepository userRepository = new UserRepositoryImpl();
-        BookService bookService = new BookServiceImpl(bookRepository);
-        UserService userService = new UserServiceImpl(userRepository);
+        BookDao bookDao = new BookDaoImpl(databaseManager);
+        BookRepository bookRepository = new BookRepositoryImpl(bookDao);
+        ServiceDtoMapper serviceDtoMapper = new ServiceDtoMapper();
+        BookService bookService = new BookServiceImpl(bookRepository, serviceDtoMapper);
+        UserDao userDao = new UserDaoImpl(databaseManager);
+        UserRepository userRepository = new UserRepositoryImpl(userDao);
+        UserService userService = new UserServiceImpl(userRepository, serviceDtoMapper);
         map = new HashMap<>();
         map.put("book", new BookCommand(bookService));
         map.put("books", new BooksCommand(bookService));

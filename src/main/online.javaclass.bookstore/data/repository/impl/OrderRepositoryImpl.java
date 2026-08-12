@@ -64,7 +64,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order create(Order entity) {
+    public Order create(Book entity) {
         return null;
     }
 
