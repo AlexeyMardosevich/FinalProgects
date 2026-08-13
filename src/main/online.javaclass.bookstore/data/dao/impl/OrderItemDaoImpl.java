@@ -14,16 +14,16 @@ import java.util.List;
 @Log4j
 @RequiredArgsConstructor
 public class OrderItemDaoImpl implements OrderItemDao {
-    public static final String GET_ORDER_ITEMS = "SELECT id, order_id, book_id, quantity, price " +
-                                                 "FROM order_items WHERE id = ?";
-    private static final String GET_BY_ORDER_ID = "SELECT id, order_id, book_id, quantity, price " +
-                                                  "FROM order_items WHERE order_id = ?";
-    private static final String GET_ALL = "SELECT id, order_id, book_id, quantity, price FROM order_items";
+    public static final String GET_ORDER_ITEMS = "SELECT oi.id, oi.order_id, oi.book_id, oi.quantity, oi.price " +
+                                                 "FROM order_items oi WHERE id = ?";
+    private static final String GET_BY_ORDER_ID = "SELECT oi.id, oi.order_id, oi.book_id, oi.quantity, oi.price " +
+                                                  "FROM order_items oi WHERE order_id = ?";
+    private static final String GET_ALL = "SELECT oi.id,oi.order_id, oi.book_id, oi.quantity, oi.price FROM order_items oi";
     private static final String CREATE = " INSERT INTO order_items(order_id, book_id, quantity, price)" +
                                          " VALUES (?, ?, ?, ?)";
     private static final String UPDATE = "UPDATE order_items SET order_id = ?, book_id = ?, quantity = ?, price = ? " +
                                          "WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM order_items WHERE id = ?";
+    private static final String DELETE_BY_ID = "DELETE FROM order_items oi WHERE oi.id = ?";
 
     private final DatabaseManager databaseManager;
 

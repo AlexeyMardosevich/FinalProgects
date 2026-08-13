@@ -10,7 +10,7 @@ public interface AbstractRepository<K, T> {
 
     List<T> getAll();
 
-    T create (Book entity);
+    T create (T entity);
 
     T update (T entity);
 

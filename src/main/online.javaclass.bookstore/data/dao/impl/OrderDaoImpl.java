@@ -12,10 +12,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderDaoImpl implements OrderDao {
     public static final String GET_BY_ID = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o WHERE id = ?";
-    private static final String GET_ALL = "SELECT id, status, cost, user_id FROM orders";
-    private static final String CREATE = "INSERT INTO orders (status, cost, user_id) VALUES (?, ?, ?)";
+    private static final String GET_ALL = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o";
+    private static final String CREATE = "INSERT INTO orders  (status, cost, user_id) VALUES (?, ?, ?)";
     private static final String UPDATE = "UPDATE orders SET status = ?,cost = ?,user_id = ? WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM orders WHERE id = ?";
+    private static final String DELETE_BY_ID = "DELETE FROM orders o WHERE o.id = ?";
 
     private final DatabaseManager databaseManager;
 

@@ -14,12 +14,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserDaoImpl implements UserDao {
 
-    public static final String GET_ALL_USERS = "SELECT * FROM users";
-    public static final String GET_USERS = "SELECT * FROM users WHERE id = ?";
+    public static final String GET_ALL_USERS = "SELECT u.id, u.email, u.password, u.role u.first_name, u.last_name FROM users u";
+    public static final String GET_USERS = "SELECT u.id, u.email, u.password, u.role u.first_name, u.last_name FROM users u WHERE u.id = ?";
     public static final String ADD_NEW_USER = "INSERT INTO users (email, password, role, first_name, last_name) VALUES (?,?,?,?,?)";
-    public static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, role = ?, first_name = ?, last_name = ? WHERE Id = ?";
-    public static final String DELETE_USER = "DELETE FROM users WHERE id = ?";
-    private static final String FIND_BY_EMAIL = "SELECT FROM users (id, email, password, role, first_name, last_name) WHERE email = ?";
+    public static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, role = ?, first_name = ?, last_name = ? WHERE u.Id = ?";
+    public static final String DELETE_USER = "DELETE FROM users u WHERE u.id = ?";
+    private static final String FIND_BY_EMAIL = "SELECT FROM users u (id, email, password, role, first_name, last_name) WHERE u.email = ?";
 
 
     private final DatabaseManager databaseManager;

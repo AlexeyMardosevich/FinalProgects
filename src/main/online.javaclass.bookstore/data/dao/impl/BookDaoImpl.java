@@ -5,8 +5,6 @@ import data.dao.BookDao;
 import data.dto.BookDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +15,10 @@ public class BookDaoImpl implements BookDao {
     public static final String GET_ALL_BOOKS = "SELECT b.id, b.name, b.author, b.price FROM books b";
     public static final String GET_ALL_BOOKS_PAGE = "SELECT b.id, b.name, b.author, b.price " +
                                                     "FROM books b ORDER BY b.id LIMIT ? OFFSET ?";
-    public static final String GET_BOOK = "SELECT b.id, b.name, b.author, b.price FROM books b WHERE id = ?";
+    public static final String GET_BOOK = "SELECT b.id, b.name, b.author, b.price FROM books b WHERE b.id = ?";
     public static final String ADD_NEW_BOOK = "INSERT INTO books (name, author,price) VALUES (?,?,?)";
     public static final String UPDATE_BOOK = "UPDATE books SET name = ?, author = ?, price = ? WHERE Id = ?";
-    public static final String DELETE_BOOK = "DELETE FROM books WHERE id = ?";
+    public static final String DELETE_BOOK = "DELETE FROM books b WHERE b.id = ?";
     private static final String COUNT_ALL_BOOKS = "SELECT COUNT(*) FROM books";
 
     private final DatabaseManager databaseManager;

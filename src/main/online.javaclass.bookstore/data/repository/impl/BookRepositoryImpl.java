@@ -38,7 +38,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public BookDto create(Book bookDto) {
+    public BookDto create(BookDto bookDto) {
         return bookDao.create(bookDto);
     }
 
