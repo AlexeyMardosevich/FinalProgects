@@ -1,0 +1,14 @@
+package online.javaclass.bookstore.data.entities;
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+public class Book {
+    private Long id;
+    private String name;
+    private String author;
+    private BigDecimal price;
+
+}

@@ -3,7 +3,7 @@
 <html>
 <head>
     <title><fmt:message key="addBook.Title"/></title>
-    <link rel="stylesheet" href="css/style.scc">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 <jsp:include page="navbar.jsp"/>
