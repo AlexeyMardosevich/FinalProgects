@@ -1,7 +1,7 @@
 package online.javaclass.bookstore.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.repository.BookRepository;
@@ -9,14 +9,17 @@ import online.javaclass.bookstore.mapper.ServiceDtoMapper;
 import online.javaclass.bookstore.service.BookService;
 import online.javaclass.bookstore.service.dto.BookDto;
 import online.javaclass.bookstore.service.exception.AppException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toDto;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 
-@Log4j
+@Service
+@Log4j2
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
@@ -41,13 +44,13 @@ public class BookServiceImpl implements BookService {
     public List<BookDto> getAll() {
         return bookRepository.getAll().stream().
                 map(ServiceDtoMapper::toDto).
-                toList();
+                collect(Collectors.toList());
     }
 
     public List<BookDto> getAll(PageableDto pageableDto) {
         List<BookDto> bookDtoList = bookRepository.getAll(pageableDto.getPageSize(), pageableDto.getOffset()).stream().
                 map(ServiceDtoMapper::toDto).
-                toList();
+                collect(Collectors.toList());
 
         int countAll = bookRepository.countAll();
         int pages = countAll / pageableDto.getPageSize();

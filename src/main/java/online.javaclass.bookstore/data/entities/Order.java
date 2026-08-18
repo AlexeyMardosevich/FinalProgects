@@ -9,7 +9,7 @@ import java.util.List;
 public class Order {
     private Long id;
     private User user;
-    private BigDecimal coast;
+    private BigDecimal cost;
     private Status status;
     private List<OrderItem> items;
 

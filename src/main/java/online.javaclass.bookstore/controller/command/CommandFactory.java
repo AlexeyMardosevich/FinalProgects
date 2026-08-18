@@ -1,15 +1,8 @@
+/*
 package online.javaclass.bookstore.controller.command;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import online.javaclass.bookstore.controller.command.impl.AddBookCommand;
-import online.javaclass.bookstore.controller.command.impl.AddBookFormCommand;
-import online.javaclass.bookstore.controller.command.impl.BookCommand;
-import online.javaclass.bookstore.controller.command.impl.BooksCommand;
-import online.javaclass.bookstore.controller.command.impl.ErrorCommand;
-import online.javaclass.bookstore.controller.command.impl.LoginCommand;
-import online.javaclass.bookstore.controller.command.impl.LoginFormCommand;
-import online.javaclass.bookstore.controller.command.impl.LogoutCommand;
 import online.javaclass.bookstore.data.connection.DatabaseManager;
 import online.javaclass.bookstore.data.dao.BookDao;
 import online.javaclass.bookstore.data.dao.UserDao;
@@ -54,17 +47,18 @@ public class CommandFactory {
         UserService userService = new UserServiceImpl(userRepository, digestService);
 
         map = new HashMap<>();
-        map.put("book", new BookCommand(bookService));
-        map.put("books", new BooksCommand(bookService));
-        map.put("error", new ErrorCommand());
-        map.put("add_book_form", new AddBookFormCommand());
-        map.put("add_book", new AddBookCommand(bookService));
-        map.put("login", new LoginCommand(userService));
-        map.put("login_form_command", new LoginFormCommand());
-        map.put("logout_command", new LogoutCommand());
+       // map.put("book", new BookCommand(bookService));
+        //map.put("books", new BooksCommand(bookService));
+       // map.put("error", new ErrorCommand());
+       // map.put("add_book_form", new AddBookFormCommand());
+       // map.put("add_book", new AddBookCommand(bookService));
+       // map.put("login", new LoginCommand(userService));
+       // map.put("login_form_command", new LoginFormCommand());
+       // map.put("logout_command", new LogoutCommand());
     }
 
     public Command getController(String command) {
         return map.get(command);
     }
 }
+*/

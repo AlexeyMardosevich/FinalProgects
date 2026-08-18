@@ -1,19 +1,22 @@
 package online.javaclass.bookstore.data.repository.impl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dao.BookDao;
 import online.javaclass.bookstore.data.dto.BookDto;
 import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.repository.BookRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import online.javaclass.bookstore.mapper.EntityDtoMapper;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static online.javaclass.bookstore.mapper.EntityDtoMapper.toDto;
 import static online.javaclass.bookstore.mapper.EntityDtoMapper.toEntity;
 
-@Log4j
+@Component
+@Log4j2
 @RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
     private final BookDao bookDao;
@@ -39,7 +42,7 @@ public class BookRepositoryImpl implements BookRepository {
 
         return bookDtoList.stream()
                 .map(EntityDtoMapper::toEntity)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -48,7 +51,7 @@ public class BookRepositoryImpl implements BookRepository {
 
         return bookDtoList.stream()
                 .map(EntityDtoMapper::toEntity)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

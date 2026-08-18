@@ -1,21 +1,23 @@
 package online.javaclass.bookstore.controller.command.impl;
 
-import jakarta.servlet.http.HttpServletRequest;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.controller.command.Command;
 import online.javaclass.bookstore.service.BookService;
 import online.javaclass.bookstore.service.dto.BookDto;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+
+@Controller
+@Log4j2
+@RequiredArgsConstructor
 public class BookCommand implements Command {
-    private static final Logger log = LogManager.getLogger(BookCommand.class);
     private final BookService bookService;
 
-    public BookCommand(BookService bookService) {
-        this.bookService = bookService;
-    }
 
     @Override
     public String execute(HttpServletRequest req) {

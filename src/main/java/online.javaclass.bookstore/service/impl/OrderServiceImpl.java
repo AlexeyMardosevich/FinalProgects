@@ -1,12 +1,13 @@
 package online.javaclass.bookstore.service.impl;
 
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.data.entities.Order;
 import online.javaclass.bookstore.data.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import online.javaclass.bookstore.service.OrderService;
 import online.javaclass.bookstore.service.dto.OrderDto;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toDto;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 
-@Log4j
+@Service
+@Log4j2
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
@@ -41,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> getAll(PageableDto pageableDto) {
-        return List.of();
+        return java.util.Collections.emptyList();
     }
 
     @Override

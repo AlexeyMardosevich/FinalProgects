@@ -1,5 +1,8 @@
 package online.javaclass.bookstore.service.exception;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class AppException extends RuntimeException{
     public AppException() {
     }

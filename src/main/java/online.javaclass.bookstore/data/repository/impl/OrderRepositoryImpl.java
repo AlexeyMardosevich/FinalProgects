@@ -1,5 +1,7 @@
 package online.javaclass.bookstore.data.repository.impl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dao.BookDao;
 import online.javaclass.bookstore.data.dao.OrderDao;
 import online.javaclass.bookstore.data.dao.OrderItemDao;
@@ -12,30 +14,39 @@ import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.entities.Order;
 import online.javaclass.bookstore.data.entities.OrderItem;
 import online.javaclass.bookstore.data.entities.User;
-import online.javaclass.bookstore.mapper.EntityDtoMapper;
 import online.javaclass.bookstore.data.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static online.javaclass.bookstore.mapper.EntityDtoMapper.toDto;
+import static online.javaclass.bookstore.mapper.EntityDtoMapper.toEntity;
+
+
+@Component
+@Log4j2
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
     private final OrderDao orderDao;
     private final UserDao userDao;
     private final OrderItemDao orderItemDao;
     private final BookDao bookDao;
-    private final EntityDtoMapper entityDtoMapper;
+ /*   private final EntityDtoMapper entityDtoMapper;
+    private final ServiceDtoMapper serviceDtoMapper;*/
 
     @Override
     public Order find(Long id) {
         OrderDto orderDto = orderDao.find(id);
-        Order order = new Order();
-        entityDtoMapper.toDto(order);
+        if (orderDto == null){
+            return null;
+        }
+        Order order = toEntity(orderDto);
+
         UserDto userDto = userDao.find(id);
         User user = new User();
-        entityDtoMapper.toEntity(userDto);
+        toEntity(userDto);
         order.setUser(user);
         List<OrderItemDto> orderItemDtos = orderItemDao.findAllByOrderId(order.getId());
         List<OrderItem> orderItems = new ArrayList<>();
@@ -60,21 +71,46 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public List<Order> getAll() {
-        return List.of();
+        List<OrderDto> orderDtos = orderDao.getAll();
+
+        List<Order> orders = new ArrayList<>();
+
+        for (OrderDto orderDto : orderDtos) {
+            orders.add(find(orderDto.getId()));
+        }
+
+        return orders;
     }
 
     @Override
-    public Order create(Order entity) {
-        return null;
+    public Order create(Order order) {
+        OrderDto orderDto = toDto(order);
+        OrderDto created = orderDao.create(orderDto);
+
+        return find(created.getId());
     }
 
     @Override
-    public Order update(Order entity) {
-        return null;
+    public Order update(Order order) {
+        OrderDto orderDto = toDto(order);
+        OrderDto createdOrder = orderDao.create(orderDto);
+
+        for (OrderItem item : order.getItems()) {
+            OrderItemDto itemDto = new OrderItemDto();
+
+            itemDto.setOrderId(createdOrder.getId());
+            itemDto.setBookId(item.getBook().getId());
+            itemDto.setQuantity(item.getQuantity());
+            itemDto.setPrice(item.getPrice());
+
+            orderItemDao.create(itemDto);
+        }
+
+        return find(createdOrder.getId());
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return false;
+        return orderDao.deleteById(id);
     }
 }

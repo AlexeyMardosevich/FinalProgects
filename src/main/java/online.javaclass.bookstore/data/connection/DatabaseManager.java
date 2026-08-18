@@ -1,12 +1,15 @@
+/*
 package online.javaclass.bookstore.data.connection;
 
 import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Log4j
+@Component
 public class DatabaseManager {
 
     private final ProxyConnection connection;
@@ -37,3 +40,4 @@ public class DatabaseManager {
         }
     }
 }
+*/

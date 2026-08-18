@@ -1,100 +1,88 @@
 package online.javaclass.bookstore.data.dao.impl;
 
-import online.javaclass.bookstore.data.connection.DatabaseManager;
+import lombok.RequiredArgsConstructor;
 import online.javaclass.bookstore.data.dao.OrderDao;
 import online.javaclass.bookstore.data.dto.OrderDto;
-import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+@Repository
 @RequiredArgsConstructor
 public class OrderDaoImpl implements OrderDao {
-    public static final String GET_BY_ID = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o WHERE id = ?";
-    private static final String GET_ALL = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o";
+    public static final String GET_BY_ID = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o WHERE o.id = ?";
+    private static final String GET_ALL = "SELECT o.id, o.status, o.cost, o.user_id FROM orders o ORDER BY o.id";
     private static final String CREATE = "INSERT INTO orders  (status, cost, user_id) VALUES (?, ?, ?)";
-    private static final String UPDATE = "UPDATE orders SET status = ?,cost = ?,user_id = ? WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM orders o WHERE o.id = ?";
+    private static final String UPDATE = "UPDATE orders SET status = :status ,cost = :cost,user_id = :user_id WHERE id = :id";
+    private static final String DELETE_BY_ID = "DELETE FROM orders o WHERE id = ?";
 
-    private final DatabaseManager databaseManager;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public OrderDto find(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(GET_BY_ID)) {
-            statement.setLong(1, id);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapRow(resultSet);
-                }
-            }
+        try {
+            return jdbcTemplate.queryForObject(GET_BY_ID, this::mapRow, id);
+        } catch (EmptyResultDataAccessException e) {
             return null;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't find order with id: " + id, e);
         }
     }
 
     @Override
     public List<OrderDto> getAll() {
-        List<OrderDto> orders = new ArrayList<>();
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(GET_ALL);
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                orders.add(mapRow(resultSet));
-            }
-            return orders;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't get all orders", e);
-        }
+        return jdbcTemplate.query(GET_ALL, this::mapRow);
     }
 
     @Override
     public OrderDto create(OrderDto orderDto) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatementForInsert(statement, orderDto);
-            statement.executeUpdate();
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    long id = generatedKeys.getLong(1);
-                    return find(id);
-                }
-            }
-            throw new RuntimeException("Couldn't get generated id for order");
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't create order", e);
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, orderDto.getStatus().name());
+            preparedStatement.setBigDecimal(2, orderDto.getCost());
+            preparedStatement.setLong(3, orderDto.getUserId());
+            return preparedStatement;
+        }, keyHolder);
+        return Optional.ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .map(this::find)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Couldn't get generated id "
+                        + "after creating order"));
     }
 
     @Override
     public OrderDto update(OrderDto orderDto) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE)) {
-            preparedStatementForUpdate(statement, orderDto);
-            int updatedRows = statement.executeUpdate();
-            if (updatedRows == 0) {
-                return null;
-            }
-            return find(orderDto.getId());
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't update order with id: " + orderDto.getId(), e);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", orderDto.getId());
+        params.put("user_id", orderDto.getUserId());
+        params.put("cost", orderDto.getCost());
+        params.put("status", orderDto.getStatus().name());
+        int updateRow = namedParameterJdbcTemplate.update(UPDATE, params);
+        if (updateRow == 0) {
+            return null;
         }
+        return find(orderDto.getId());
     }
 
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_BY_ID)) {
-            statement.setLong(1, id);
-            return statement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't delete order with id: " + id, e);
-        }
+        return 1 == jdbcTemplate.update(DELETE_BY_ID, id);
     }
 
-    private OrderDto mapRow(ResultSet resultSet) throws SQLException {
+    private OrderDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         OrderDto orderDto = new OrderDto();
         orderDto.setId(resultSet.getLong("id"));
         orderDto.setUserId(resultSet.getLong("user_id"));
@@ -102,18 +90,5 @@ public class OrderDaoImpl implements OrderDao {
         String status = resultSet.getString("status");
         orderDto.setStatus(OrderDto.Status.valueOf(status));
         return orderDto;
-    }
-
-    private void preparedStatementForInsert(PreparedStatement statement, OrderDto orderDto) throws SQLException {
-        statement.setString(1, orderDto.getStatus().name());
-        statement.setBigDecimal(2, orderDto.getCost());
-        statement.setLong(3, orderDto.getUserId()
-        );
-    }
-
-    private void preparedStatementForUpdate(PreparedStatement statement, OrderDto orderDto) throws SQLException {
-        preparedStatementForInsert(statement, orderDto);
-        statement.setLong(4, orderDto.getId()
-        );
     }
 }

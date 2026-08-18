@@ -1,16 +1,33 @@
+/*
 package online.javaclass.bookstore.data.connection;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.ShardingKey;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+@Log4j
+@Component
 public class ProxyConnection implements Connection {
 
-    private static final Logger log = LogManager.getLogger(ProxyConnection.class);
 
     private final Connection realConnection;
 
@@ -321,3 +338,4 @@ public class ProxyConnection implements Connection {
         return realConnection.isWrapperFor(iface);
     }
 }
+*/

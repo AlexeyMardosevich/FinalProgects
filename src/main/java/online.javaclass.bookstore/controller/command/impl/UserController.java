@@ -1,22 +1,19 @@
 package online.javaclass.bookstore.controller.command.impl;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.LogManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.service.UserService;
 import online.javaclass.bookstore.service.dto.UserDto;
 import online.javaclass.bookstore.service.exception.AppException;
+import org.springframework.stereotype.Controller;
 
 import java.io.PrintStream;
 import java.util.List;
-
+@Controller
+@Log4j2
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    private static final Logger log = LogManager.getLogger(UserController.class);
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     public void process(String request, PrintStream response) {
         if (request.startsWith("get all")) {

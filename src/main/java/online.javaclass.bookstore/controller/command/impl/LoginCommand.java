@@ -1,16 +1,18 @@
 package online.javaclass.bookstore.controller.command.impl;
 
-import online.javaclass.bookstore.controller.command.Command;
-import online.javaclass.bookstore.data.entities.User;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+import online.javaclass.bookstore.controller.command.Command;
 import online.javaclass.bookstore.service.UserService;
 import online.javaclass.bookstore.service.dto.UserDto;
+import org.springframework.stereotype.Controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
-@Log4j
+@Controller
+@Log4j2
 @RequiredArgsConstructor
 public class LoginCommand implements Command {
     private  final UserService userService;

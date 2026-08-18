@@ -1,11 +1,13 @@
 package online.javaclass.bookstore.service.impl;
 
 import online.javaclass.bookstore.service.DigestService;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+@Service
 public class DigestServiceImpl implements DigestService {
 
     @Override

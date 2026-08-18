@@ -1,21 +1,24 @@
 package online.javaclass.bookstore.data.repository.impl;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dao.UserDao;
 import online.javaclass.bookstore.data.dto.UserDto;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import online.javaclass.bookstore.mapper.EntityDtoMapper;
 import online.javaclass.bookstore.service.exception.AppException;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static online.javaclass.bookstore.mapper.EntityDtoMapper.toDto;
 import static online.javaclass.bookstore.mapper.EntityDtoMapper.toEntity;
 
 
-@Log4j
+@Component
+@Log4j2
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
     private final UserDao userDao;
@@ -29,7 +32,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAll(int size, int offset) {
-        return List.of();
+        List<UserDto> userDtoList = userDao.getAll();
+        return userDtoList.stream()
+                .map(EntityDtoMapper::toEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -50,10 +56,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        return userDao.getAll()
-                .stream()
+        List<UserDto> userDtoList = userDao.getAll();
+        return userDtoList.stream()
                 .map(EntityDtoMapper::toEntity)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

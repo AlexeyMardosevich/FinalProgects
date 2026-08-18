@@ -1,16 +1,27 @@
 package online.javaclass.bookstore.data.dao.impl;
 
-import online.javaclass.bookstore.data.connection.DatabaseManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dao.BookDao;
 import online.javaclass.bookstore.data.dto.BookDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-@Log4j
+@Repository
+@Log4j2
 @RequiredArgsConstructor
 public class BookDaoImpl implements BookDao {
     public static final String GET_ALL_BOOKS = "SELECT b.id, b.name, b.author, b.price FROM books b";
@@ -18,130 +29,87 @@ public class BookDaoImpl implements BookDao {
                                                     "FROM books b ORDER BY b.id LIMIT ? OFFSET ?";
     public static final String GET_BOOK = "SELECT b.id, b.name, b.author, b.price FROM books b WHERE b.id = ?";
     public static final String ADD_NEW_BOOK = "INSERT INTO books (name, author,price) VALUES (?,?,?)";
-    public static final String UPDATE_BOOK = "UPDATE books SET name = ?, author = ?, price = ? WHERE Id = ?";
-    public static final String DELETE_BOOK = "DELETE FROM books b WHERE b.id = ?";
+    public static final String UPDATE_BOOK_PARAM = "UPDATE books SET name = :name, author = :author, price = :price WHERE id = :id";
+    public static final String DELETE_BOOK = "DELETE FROM books WHERE id = ?";
     private static final String COUNT_ALL_BOOKS = "SELECT COUNT(*) FROM books";
 
-    private final DatabaseManager databaseManager;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 
     @Override
     public int countAll() {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(COUNT_ALL_BOOKS);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
-
-            return 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't count all books", e);
-        }
+        Integer count = jdbcTemplate.queryForObject(COUNT_ALL_BOOKS, Integer.class);
+        return count != null ? count : 0;
     }
 
     @Override
     public BookDto find(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_BOOK)) {
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                return mapRow(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try {
+            return jdbcTemplate.queryForObject(GET_BOOK, this::mapRow, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
-
-        return null;
     }
 
     @Override
     public List<BookDto> getAll() {
-        List<BookDto> bookDtoList = new ArrayList<>();
-
-        try (Connection connection = databaseManager.getconnection();
-             Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(BookDaoImpl.GET_ALL_BOOKS);
-
-            while (resultSet.next()) {
-                bookDtoList.add(mapRow(resultSet));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return bookDtoList;
+        return jdbcTemplate.query(GET_ALL_BOOKS, this::mapRow);
     }
 
     @Override
     public List<BookDto> getAll(int limit, int offset) {
-        List<BookDto> bookDtoList = new ArrayList<>();
-
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(GET_ALL_BOOKS_PAGE)) {
-            statement.setInt(1, limit);
-            statement.setInt(2, offset);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                bookDtoList.add(mapRow(resultSet));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return bookDtoList;
+        validatePagination(limit, offset);
+        return jdbcTemplate.query(GET_ALL_BOOKS_PAGE, this::mapRow, limit, offset);
     }
 
     @Override
     public BookDto create(BookDto bookDto) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_BOOK, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatementForInsert(preparedStatement, bookDto);
-            preparedStatement.executeUpdate();
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-
-            if (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                return find(id);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        throw new RuntimeException("Couldn't creat bookDto [" + bookDto + "]");
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(ADD_NEW_BOOK, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, bookDto.getName());
+            preparedStatement.setString(2, bookDto.getAuthor());
+            preparedStatement.setBigDecimal(3, bookDto.getPrice());
+            return preparedStatement;
+        }, keyHolder);
+        return Optional.ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .map(this::find)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Couldn't get generated id "
+                        + "after creating book"));
     }
 
     @Override
     public BookDto update(BookDto bookDto) {
-        try (Connection connection = databaseManager.getconnection();
-
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_BOOK)) {
-            preparedStatementForUpdate(preparedStatement, bookDto);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", bookDto.getId());
+        params.put("name", bookDto.getName());
+        params.put("author", bookDto.getAuthor());
+        params.put("price", bookDto.getPrice());
+        int updateRow = namedParameterJdbcTemplate.update(UPDATE_BOOK_PARAM, params);
+        if (updateRow == 0) {
+            return null;
         }
-
         return find(bookDto.getId());
     }
 
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BOOK)) {
-            preparedStatement.setLong(1, id);
-
-            return preparedStatement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
+        return 1 == jdbcTemplate.update(DELETE_BOOK, id);
     }
 
-    private BookDto mapRow(ResultSet resultSet) throws SQLException {
+    private static void validatePagination(int limit, int offset) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be greater than zero");
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset cannot be negative");
+        }
+    }
+
+    private BookDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         BookDto bookDto = new BookDto();
         bookDto.setId(resultSet.getLong("id"));
         bookDto.setName(resultSet.getString("name"));
@@ -149,15 +117,5 @@ public class BookDaoImpl implements BookDao {
         bookDto.setPrice(resultSet.getBigDecimal("price"));
 
         return bookDto;
-    }
-
-    private static void preparedStatementForInsert(PreparedStatement preparedStatement, BookDto bookDto) throws SQLException {
-        preparedStatement.setString(1, bookDto.getName());
-        preparedStatement.setString(2, bookDto.getAuthor());
-        preparedStatement.setBigDecimal(3, bookDto.getPrice());
-    }
-
-    private static void preparedStatementForUpdate(PreparedStatement preparedStatement, BookDto bookDto) throws SQLException {
-        preparedStatement.setLong(4, bookDto.getId());
     }
 }

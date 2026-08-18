@@ -1,125 +1,103 @@
 package online.javaclass.bookstore.data.dao.impl;
 
-import online.javaclass.bookstore.data.connection.DatabaseManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.dao.OrderItemDao;
 import online.javaclass.bookstore.data.dto.OrderItemDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-@Log4j
+@Repository
+@Log4j2
 @RequiredArgsConstructor
 public class OrderItemDaoImpl implements OrderItemDao {
     public static final String GET_ORDER_ITEMS = "SELECT oi.id, oi.order_id, oi.book_id, oi.quantity, oi.price " +
-                                                 "FROM order_items oi WHERE id = ?";
+                                                 "FROM order_items oi WHERE oi.id = ?";
     private static final String GET_BY_ORDER_ID = "SELECT oi.id, oi.order_id, oi.book_id, oi.quantity, oi.price " +
-                                                  "FROM order_items oi WHERE order_id = ?";
-    private static final String GET_ALL = "SELECT oi.id,oi.order_id, oi.book_id, oi.quantity, oi.price FROM order_items oi";
-    private static final String CREATE = " INSERT INTO order_items(order_id, book_id, quantity, price)" +
+                                                  "FROM order_items oi WHERE oi.order_id = ? ORDER BY oi.id";
+    private static final String GET_ALL = "SELECT oi.id,oi.order_id, oi.book_id, oi.quantity, oi.price " +
+                                          "FROM order_items oi ORDER BY oi.id";
+    private static final String CREATE = "INSERT INTO order_items(order_id, book_id, quantity, price)" +
                                          " VALUES (?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE order_items SET order_id = ?, book_id = ?, quantity = ?, price = ? " +
-                                         "WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM order_items oi WHERE oi.id = ?";
+    private static final String UPDATE = "UPDATE order_items SET order_id = :order_id, book_id = :book_id, quantity = :quantity," +
+                                         " price = :price WHERE id = :id";
+    private static final String DELETE_BY_ID = "DELETE FROM order_items  WHERE id = ?";
 
-    private final DatabaseManager databaseManager;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public OrderItemDto find(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(GET_ORDER_ITEMS)) {
-            preparedStatement.setLong(1, id);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapRow(resultSet);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't find order item with id: " + id, e);
+        try {
+            return jdbcTemplate.queryForObject(GET_ORDER_ITEMS, this::mapRow, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
-        return null;
     }
 
     @Override
     public List<OrderItemDto> findAllByOrderId(Long orderId) {
-        List<OrderItemDto> orderItems = new ArrayList<>();
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(GET_BY_ORDER_ID)) {
-            statement.setLong(1, orderId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    orderItems.add(mapRow(resultSet));
-                }
-            }
-            return orderItems;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't find order items by order id: " + orderId, e);
-        }
+        return jdbcTemplate.query(GET_BY_ORDER_ID, this::mapRow, orderId);
     }
 
     @Override
     public List<OrderItemDto> getAll() {
-        List<OrderItemDto> orderItems = new ArrayList<>();
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(GET_ALL);
-             ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                orderItems.add(mapRow(resultSet));
-            }
-            return orderItems;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't get all order items", e);
-        }
+        return jdbcTemplate.query(GET_ALL, this::mapRow);
     }
 
     @Override
     public OrderItemDto create(OrderItemDto orderItem) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatementForInsert(statement, orderItem);
-            statement.executeUpdate();
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    Long generatedId = generatedKeys.getLong(1);
-                    return find(generatedId);
-                }
-            }
-            throw new RuntimeException("Couldn't get generated id for order item");
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't create order item", e);
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(CREATE, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setLong(1, orderItem.getOrderId());
+            preparedStatement.setLong(2, orderItem.getBookId());
+            preparedStatement.setInt(3, orderItem.getQuantity());
+            preparedStatement.setBigDecimal(4, orderItem.getPrice());
+            return preparedStatement;
+        }, keyHolder);
+        return Optional.ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .map(this::find)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Couldn't get generated id "
+                        + "after creating orderItem"));
     }
 
     @Override
     public OrderItemDto update(OrderItemDto orderItem) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE)) {
-            preparedStatementForUpdate(statement, orderItem);
-            int updatedRows = statement.executeUpdate();
-            if (updatedRows == 0) {
-                return null;
-            }
-            return find(orderItem.getId());
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't update order item with id: " + orderItem.getId(), e);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", orderItem.getId());
+        params.put("order_id", orderItem.getOrderId());
+        params.put("quantity", orderItem.getQuantity());
+        params.put("price", orderItem.getPrice());
+        params.put("book_id", orderItem.getBookId());
+        int updateRow = namedParameterJdbcTemplate.update(UPDATE, params);
+        if (updateRow == 0) {
+            return null;
         }
+        return find(orderItem.getId());
     }
 
     @Override
     public boolean deleteById(Long id) {
-        try (Connection connection = databaseManager.getconnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_BY_ID)) {
-            statement.setLong(1, id);
-            return statement.executeUpdate() == 1;
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't delete order item with id: " + id, e);
-        }
+        return 1 == jdbcTemplate.update(DELETE_BY_ID, id);
     }
 
-    private OrderItemDto mapRow(ResultSet resultSet) throws SQLException {
+    private OrderItemDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setId(resultSet.getLong("id"));
         orderItemDto.setOrderId(resultSet.getLong("order_id"));
@@ -127,17 +105,5 @@ public class OrderItemDaoImpl implements OrderItemDao {
         orderItemDto.setPrice(resultSet.getBigDecimal("price"));
         orderItemDto.setBookId(resultSet.getLong("book_id"));
         return orderItemDto;
-    }
-
-    private void preparedStatementForInsert(PreparedStatement statement, OrderItemDto orderItem) throws SQLException {
-        statement.setLong(1, orderItem.getOrderId());
-        statement.setLong(2, orderItem.getBookId());
-        statement.setInt(3, orderItem.getQuantity());
-        statement.setBigDecimal(4, orderItem.getPrice());
-    }
-
-    private void preparedStatementForUpdate(PreparedStatement statement, OrderItemDto orderItem) throws SQLException {
-        preparedStatementForInsert(statement, orderItem);
-        statement.setLong(5, orderItem.getId());
     }
 }
