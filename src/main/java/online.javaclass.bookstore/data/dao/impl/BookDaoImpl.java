@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.data.dao.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -119,3 +120,4 @@ public class BookDaoImpl implements BookDao {
         return bookDto;
     }
 }
+*/

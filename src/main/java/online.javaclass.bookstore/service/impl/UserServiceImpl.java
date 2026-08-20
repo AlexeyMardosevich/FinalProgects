@@ -2,6 +2,7 @@ package online.javaclass.bookstore.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import online.javaclass.bookstore.data.dto.PageResponseDto;
 import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.UserRepository;
@@ -29,18 +30,15 @@ public class UserServiceImpl implements UserService {
     public UserDto login(String email, String password) {
         User user = userRepository.findByEmail(email);
         String hashed = digestService.hash(password);
-
         if (user == null || !user.getPassword().equals(hashed)) {
             throw new RuntimeException("Invalid login entrapment" + email);
         }
-
         return toDto(user);
     }
 
     @Override
     public UserDto find(Long id) {
         User user = userRepository.find(id);
-
         if (user == null) {
             throw new AppException("Couldn't find user with id:" + id);
         }
@@ -57,22 +55,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAll(PageableDto pageableDto) {
-        List<UserDto> bookDtoList = userRepository.getAll(pageableDto.getPageSize(), pageableDto.getOffset()).stream().
-                map(ServiceDtoMapper::toDto)
+    public PageResponseDto<UserDto> getAll(PageableDto pageableDto) {
+        List<UserDto> users = userRepository
+                .getAll(pageableDto.getPageSize(), pageableDto.getOffset())
+                .stream()
+                .map(ServiceDtoMapper::toDto)
                 .collect(Collectors.toList());
-
-        int countAll = userRepository.countAll();
-        int pages = countAll / pageableDto.getPageSize();
-
-        if (countAll % pageableDto.getPageSize() != 0) {
-            pages++;
-        }
-
-        pageableDto.setTotalItems(countAll);
-        pageableDto.setTotalPages(pages);
-
-        return bookDtoList;
+        int totalItems = userRepository.countAll();
+        return new PageResponseDto<>(users, pageableDto.getPage(), pageableDto.getPageSize(), totalItems);
     }
 
     @Override
@@ -84,7 +74,6 @@ public class UserServiceImpl implements UserService {
         String hashed = digestService.hash(originalPassword);
         user.setPassword(hashed);
         User created = userRepository.create(user);
-
         return toDto(created);
     }
 
@@ -92,7 +81,6 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto) {
         User user = toEntity(userDto);
         User update = userRepository.update(user);
-
         return toDto(update);
     }
 

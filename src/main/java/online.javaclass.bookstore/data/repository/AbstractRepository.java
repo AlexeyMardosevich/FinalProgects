@@ -8,9 +8,9 @@ public interface AbstractRepository<K, T> {
 
     List<T> getAll();
 
-    T create(T entity);
+     T create(T entity);
 
-    T update(T entity);
+     T update(T entity);
 
     boolean deleteById(K id);
 }

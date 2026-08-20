@@ -2,92 +2,89 @@ package online.javaclass.bookstore.data.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.javaclass.bookstore.data.dao.UserDao;
-import online.javaclass.bookstore.data.dto.UserDto;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.UserRepository;
-import online.javaclass.bookstore.mapper.EntityDtoMapper;
-import online.javaclass.bookstore.service.exception.AppException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static online.javaclass.bookstore.mapper.EntityDtoMapper.toDto;
-import static online.javaclass.bookstore.mapper.EntityDtoMapper.toEntity;
 
 
-@Component
+@Repository
 @Log4j2
 @RequiredArgsConstructor
+@Transactional
 public class UserRepositoryImpl implements UserRepository {
-    private final UserDao userDao;
+
+    @PersistenceContext
+    private EntityManager manager;
 
     @Override
+    @Transactional(readOnly = true)
     public User findByEmail(String email) {
-        UserDto userDto = userDao.findByEmail(email);
-
-        return toEntity(userDto);
+        List<User> users = manager.createQuery("select u from User u where u.email = :email", User.class)
+                .setParameter("email", email)
+                .setMaxResults(1)
+                .getResultList();
+        return users.isEmpty() ? null : users.get(0);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAll(int size, int offset) {
-        List<UserDto> userDtoList = userDao.getAll();
-        return userDtoList.stream()
-                .map(EntityDtoMapper::toEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public int countAll() {
-        return 0;
-    }
-
-    @Override
-    public User find(Long id) {
-        UserDto userDto = userDao.find(id);
-
-        if (userDto == null) {
-            throw new AppException("Couldn't find userDto with id: " + id);
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than zero");
         }
-
-        return toEntity(userDto);
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset cannot be negative");
+        }
+        return manager.createQuery("select u from User u order by u.id", User.class)
+                .setFirstResult(offset)
+                .setMaxResults(size)
+                .getResultList();
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public int countAll() {
+        Long count = manager.createQuery("select count(u) from User u", Long.class)
+                .getSingleResult();
+        return count.intValue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User find(Long id) {
+        return manager.find(User.class, id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<User> getAll() {
-        List<UserDto> userDtoList = userDao.getAll();
-        return userDtoList.stream()
-                .map(EntityDtoMapper::toEntity)
-                .collect(Collectors.toList());
+        return manager.createQuery("from User", User.class).getResultList();
     }
 
     @Override
     public User create(User user) {
-        UserDto dto = toDto(user);
-        UserDto created = userDao.create(dto);
-
-        if (created == null) {
-            throw new AppException("Couldn't create user with id: " + user.getId());
-        }
-
-        return toEntity(created);
+        manager.persist(user);
+        return user;
     }
 
     @Override
     public User update(User user) {
-        UserDto dto = toDto(user);
-        UserDto updated = userDao.update(dto);
-
-        if (updated == null) {
-            throw new AppException("Couldn't update user with id: " + user.getId());
-        }
-
-        return toEntity(updated);
+        return manager.merge(user);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return userDao.deleteById(id);
+        User user = manager.find(User.class, id);
+        boolean delete = false;
+        if (user != null) {
+            manager.remove(user);
+            delete = true;
+        }
+        return delete;
     }
 }

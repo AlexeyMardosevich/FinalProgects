@@ -1,9 +1,9 @@
-/*
-DROP TABLE IF EXISTS order_items;
+
+/*DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS books;
-*/
+DROP TABLE IF EXISTS books;*/
+
 
 create table if not exists users
 (
@@ -20,7 +20,7 @@ create table if not exists books
     id     bigserial primary key,
     name   varchar(128) not null,
     author varchar(128),
-    price  int          not null
+    price  numeric(19, 2) not null
 );
 
 create table if not exists orders
@@ -28,7 +28,7 @@ create table if not exists orders
     id      BIGSERIAL primary key,
     user_id BIGINT      not null REFERENCES users,
     status  varchar(75) not null,
-    cost   varchar(75) not null
+    cost   numeric(19, 2) not null
 );
 
 create table if not exists order_items
@@ -37,6 +37,6 @@ create table if not exists order_items
     order_id BIGINT references orders,
     book_id  BIGINT references books,
     quantity INT not null DEFAULT 1,
-    price    INT
+    price    numeric(19, 2)
 );
 

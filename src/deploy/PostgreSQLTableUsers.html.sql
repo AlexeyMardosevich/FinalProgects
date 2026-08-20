@@ -2,8 +2,8 @@ drop table if exists users;
 create table if not exists users (
 id bigserial primary key,
 email varchar (128) unique not null,
-"password" varchar (128) not null,
-"role" varchar (128),
+password varchar (128) not null,
+role varchar (128),
 first_name varchar (128),
 last_name varchar (128)
 );

@@ -32,7 +32,7 @@ public class ServiceDtoMapper {
         user.setId(userDto.getId());
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
+        user.setRole(User.Role.valueOf(userDto.getRole()));
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
 
@@ -68,7 +68,7 @@ public class ServiceDtoMapper {
         userDto.setId(user.getId());
         userDto.setEmail(user.getEmail());
         userDto.setPassword(user.getPassword());
-        userDto.setRole(user.getRole());
+        userDto.setRole(String.valueOf(user.getRole()));
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
 

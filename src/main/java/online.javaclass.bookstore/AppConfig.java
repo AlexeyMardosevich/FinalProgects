@@ -1,19 +1,20 @@
 package online.javaclass.bookstore;
 
-import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.orm.jpa.JpaTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 @Configuration
 @ComponentScan
-@PropertySource("classpath:/application.properties")
+//@PropertySource("classpath:/application.properties")
+@EnableTransactionManagement
 public class AppConfig {
-    @Value("${db.URL}")
+   /* @Value("${db.URL}")
     private String URL;
     @Value("${db.Login}")
     private String LOGIN;
@@ -32,12 +33,22 @@ public class AppConfig {
 
     @Bean
     public JdbcTemplate jdbcTemplate(HikariDataSource dataSource) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate();
         return new JdbcTemplate(dataSource);
     }
 
     @Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(HikariDataSource dataSource) {
-        return new  NamedParameterJdbcTemplate(dataSource);
+        return new NamedParameterJdbcTemplate(dataSource);
+
+    }*/
+
+    @Bean
+    public EntityManagerFactory entityManagerFactory() {
+        return Persistence.createEntityManagerFactory("databases");
+    }
+
+    @Bean
+    public TransactionManager transactionManager(EntityManagerFactory factory){
+        return new JpaTransactionManager(factory);
     }
 }

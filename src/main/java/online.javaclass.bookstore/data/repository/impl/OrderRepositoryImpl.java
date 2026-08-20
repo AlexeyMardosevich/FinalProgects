@@ -2,115 +2,76 @@ package online.javaclass.bookstore.data.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.javaclass.bookstore.data.dao.BookDao;
-import online.javaclass.bookstore.data.dao.OrderDao;
-import online.javaclass.bookstore.data.dao.OrderItemDao;
-import online.javaclass.bookstore.data.dao.UserDao;
-import online.javaclass.bookstore.data.dto.BookDto;
-import online.javaclass.bookstore.data.dto.OrderDto;
-import online.javaclass.bookstore.data.dto.OrderItemDto;
-import online.javaclass.bookstore.data.dto.UserDto;
-import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.entities.Order;
-import online.javaclass.bookstore.data.entities.OrderItem;
-import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.OrderRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
-import static online.javaclass.bookstore.mapper.EntityDtoMapper.toDto;
-import static online.javaclass.bookstore.mapper.EntityDtoMapper.toEntity;
 
-
-@Component
+@Repository
 @Log4j2
 @RequiredArgsConstructor
+@Transactional
 public class OrderRepositoryImpl implements OrderRepository {
-    private final OrderDao orderDao;
-    private final UserDao userDao;
-    private final OrderItemDao orderItemDao;
-    private final BookDao bookDao;
- /*   private final EntityDtoMapper entityDtoMapper;
-    private final ServiceDtoMapper serviceDtoMapper;*/
+
+    @PersistenceContext
+    private EntityManager manager;
 
     @Override
+    @Transactional(readOnly = true)
     public Order find(Long id) {
-        OrderDto orderDto = orderDao.find(id);
-        if (orderDto == null){
-            return null;
-        }
-        Order order = toEntity(orderDto);
-
-        UserDto userDto = userDao.find(id);
-        User user = new User();
-        toEntity(userDto);
-        order.setUser(user);
-        List<OrderItemDto> orderItemDtos = orderItemDao.findAllByOrderId(order.getId());
-        List<OrderItem> orderItems = new ArrayList<>();
-        for (OrderItemDto orderItemDto : orderItemDtos) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setQuantity(orderItemDto.getQuantity());
-            orderItem.setPrice(orderItemDto.getPrice());
-            orderItem.setId(orderItemDto.getId());
-            BookDto bookDto = bookDao.find(id);
-            Book book = new Book();
-            book.setId(bookDto.getId());
-            book.setName(bookDto.getName());
-            book.setAuthor(bookDto.getAuthor());
-            book.setPrice(new BigDecimal(bookDto.getPrice().toString()));
-            orderItem.setBook(book);
-            orderItems.add(orderItem);
-        }
-        order.setItems(orderItems);
-        return order;
+        return manager.find(Order.class, id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Order> getAll(int size, int offset) {
+        return manager.createQuery("select distinct o from Order o left join fetch o.user left join fetch o.items items " +
+                                   "left join fetch items.book order by o.id", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(size)
+                .getResultList();
+    }
 
     @Override
+    @Transactional(readOnly = true)
+    public int countAll() {
+        Long count = manager.createQuery("select count(o) from Order o", Long.class)
+                .getSingleResult();
+        return count.intValue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Order> getAll() {
-        List<OrderDto> orderDtos = orderDao.getAll();
-
-        List<Order> orders = new ArrayList<>();
-
-        for (OrderDto orderDto : orderDtos) {
-            orders.add(find(orderDto.getId()));
-        }
-
-        return orders;
+        return manager.createQuery("select distinct o from Order o left join fetch o.user left join fetch o.items items " +
+                                   "left join fetch items.book order by o.id", Order.class)
+                .getResultList();
     }
 
     @Override
     public Order create(Order order) {
-        OrderDto orderDto = toDto(order);
-        OrderDto created = orderDao.create(orderDto);
-
-        return find(created.getId());
+        manager.persist(order);
+        return order;
     }
 
     @Override
     public Order update(Order order) {
-        OrderDto orderDto = toDto(order);
-        OrderDto createdOrder = orderDao.create(orderDto);
-
-        for (OrderItem item : order.getItems()) {
-            OrderItemDto itemDto = new OrderItemDto();
-
-            itemDto.setOrderId(createdOrder.getId());
-            itemDto.setBookId(item.getBook().getId());
-            itemDto.setQuantity(item.getQuantity());
-            itemDto.setPrice(item.getPrice());
-
-            orderItemDao.create(itemDto);
-        }
-
-        return find(createdOrder.getId());
+        return manager.merge(order);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return orderDao.deleteById(id);
+        Order order = manager.find(Order.class, id);
+        boolean delete = false;
+        if (order != null) {
+            manager.remove(order);
+            delete = true;
+        }
+        return delete;
     }
 }

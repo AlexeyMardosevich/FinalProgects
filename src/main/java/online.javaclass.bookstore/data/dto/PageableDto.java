@@ -4,31 +4,35 @@ package online.javaclass.bookstore.data.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class PageableDto {
-    @Getter
     private final int page;
-    @Getter
     private final int pageSize;
-    @Getter
     private final int offset;
-    @Getter
+
     @Setter
     private int totalItems;
-    @Getter
+
     @Setter
     private int totalPages;
 
     public PageableDto(int page, int pageSize) {
+        if (page < 1) {
+            throw new IllegalArgumentException("Page must be greater than or equal to 1");
+        }
+
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("Page size must be greater than zero");
+        }
         this.page = page;
         this.pageSize = pageSize;
-        this.offset = calculateOffset();
+        this.offset = Math.multiplyExact(page - 1, pageSize);
     }
 
-    private int calculateOffset() {
-        return pageSize * (page - 1);
-    }
-
-    private int calculateLimit() {
-        return pageSize;
+    public void calculatePages(int totalItems) {
+        this.totalItems = totalItems;
+        this.totalPages = totalItems == 0
+                ? 0
+                : (totalItems + pageSize - 1) / pageSize;
     }
 }
