@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.controller.command.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -17,3 +18,4 @@ public class LoginFormCommand implements Command {
         return "jsp/login.jsp";
     }
 }
+*/

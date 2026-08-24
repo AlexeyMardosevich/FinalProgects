@@ -30,6 +30,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Order> getAll(int size, int offset) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than zero");
+        }
+        if (offset < 0) {throw new IllegalArgumentException("Offset cannot be negative");
+        }
         return manager.createQuery("select distinct o from Order o left join fetch o.user left join fetch o.items items " +
                                    "left join fetch items.book order by o.id", Order.class)
                 .setFirstResult(offset)
@@ -67,11 +72,10 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public boolean deleteById(Long id) {
         Order order = manager.find(Order.class, id);
-        boolean delete = false;
-        if (order != null) {
-            manager.remove(order);
-            delete = true;
+        if (order == null) {
+            return false;
         }
-        return delete;
+        manager.remove(order);
+        return true;
     }
 }

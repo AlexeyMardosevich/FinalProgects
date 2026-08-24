@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.controller.command.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -18,3 +19,4 @@ public class LogoutCommand implements Command {
         return "index.jsp";
     }
 }
+*/

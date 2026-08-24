@@ -1,4 +1,5 @@
-package online.javaclass.bookstore;
+/*
+package online.javaclass.bookstore.web;
 
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -25,3 +26,4 @@ public class AppContextListener implements ServletContextListener {
         context.close();
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.controller.command.impl;
 
 
@@ -29,3 +30,4 @@ public class EditBookCommand implements Command {
         return "jsp/book.jsp";
     }
 }
+*/
