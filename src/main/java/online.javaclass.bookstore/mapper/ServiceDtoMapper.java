@@ -55,7 +55,7 @@ public class ServiceDtoMapper {
 
         orderDto.setId(order.getId());
         orderDto.setStatus(order.getStatus());
-        orderDto.setCoast(BigDecimal.valueOf(0.0));
+        orderDto.setCost(BigDecimal.valueOf(0.0));
         orderDto.setUser(order.getUser());
         orderDto.setItems(order.getItems());
 

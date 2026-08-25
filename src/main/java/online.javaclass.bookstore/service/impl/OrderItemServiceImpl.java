@@ -29,8 +29,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public List<OrderItemDto> findAllByOrderId(Long orderId) {
         validateId(orderId, "Order id");
-        return orderItemRepository
-                .findAllByOrderId(orderId)
+
+        return orderItemRepository.findAllByOrderId(orderId)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -39,17 +39,14 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public OrderItemDto find(Long id) {
         validateId(id, "Order item id");
-        OrderItem orderItem = orderItemRepository.find(id);
-        if (orderItem == null) {
-            throw new AppException("Couldn't find order item with id: " + id);
-        }
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new AppException("Couldn't find order item with id: " + id));
         return toDto(orderItem);
     }
 
     @Override
     public List<OrderItemDto> getAll() {
-        return orderItemRepository
-                .getAll()
+        return orderItemRepository.findAll()
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -59,21 +56,18 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     public OrderItemDto create(OrderItemDto dto) {
         validateDto(dto);
-        Order order = orderRepository.find(dto.getOrderId());
-        if (order == null) {
-            throw new AppException("Couldn't find order with id: " + dto.getOrderId());
-        }
 
-        Book book = bookRepository.find(dto.getBookId());
-        if (book == null) {
-            throw new AppException("Couldn't find book with id: " + dto.getBookId());
-        }
+        Order order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new AppException("Couldn't find order with id: " + dto.getOrderId()));
+
+        Book book = bookRepository.findById(dto.getBookId())
+                .orElseThrow(() -> new AppException("Couldn't find book with id: " + dto.getBookId()));
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setBook(book);
         orderItem.setQuantity(dto.getQuantity());
         orderItem.setPrice(book.getPrice());
-        OrderItem created = orderItemRepository.create(orderItem);
+        OrderItem created = orderItemRepository.save(orderItem);
         return toDto(created);
     }
 
@@ -86,29 +80,27 @@ public class OrderItemServiceImpl implements OrderItemService {
         if (dto.getQuantity() == null || dto.getQuantity() <= 0) {
             throw new AppException("Quantity must be greater than zero");
         }
-        OrderItem orderItem = orderItemRepository.find(dto.getId());
-        if (orderItem == null) {
-            throw new AppException("Couldn't find order item with id: " + dto.getId());
-        }
+        OrderItem orderItem = orderItemRepository.findById(dto.getId())
+                .orElseThrow(() -> new AppException("Couldn't find order item with id: " + dto.getId()));
         orderItem.setQuantity(dto.getQuantity());
         if (dto.getBookId() != null && !dto.getBookId().equals(orderItem.getBook().getId())) {
-            Book book = bookRepository.find(dto.getBookId());
-            if (book == null) {
-                throw new AppException("Couldn't find book with id: " + dto.getBookId());
-            }
+            Book book = bookRepository.findById(dto.getBookId())
+                    .orElseThrow(() -> new AppException("Couldn't find book with id: " + dto.getBookId()));
             orderItem.setBook(book);
             orderItem.setPrice(book.getPrice());
         }
-        return toDto(orderItem);
+        OrderItem updated = orderItemRepository.save(orderItem);
+        return toDto(updated);
     }
 
     @Override
     @Transactional
     public boolean deleteById(Long id) {
         validateId(id, "Order item id");
-        if (!orderItemRepository.deleteById(id)) {
+        if (!orderItemRepository.existsById(id)) {
             throw new AppException("Couldn't find order item with id: " + id);
         }
+        orderItemRepository.deleteById(id);
         return true;
     }
 

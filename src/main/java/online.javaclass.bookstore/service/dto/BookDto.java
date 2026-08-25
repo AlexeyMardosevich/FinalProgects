@@ -1,10 +1,16 @@
 package online.javaclass.bookstore.service.dto;
 
-import lombok.Data;
+
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class BookDto {
     private Long id;
     private String name;

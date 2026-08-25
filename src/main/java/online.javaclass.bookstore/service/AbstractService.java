@@ -1,7 +1,7 @@
 package online.javaclass.bookstore.service;
 
-import online.javaclass.bookstore.data.dto.PageResponseDto;
-import online.javaclass.bookstore.data.dto.PageableDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public interface AbstractService <K, T>{
 
     List<T> getAll();
 
-    PageResponseDto<T> getAll(PageableDto pageableDto);
+    Page<T> getAll(Pageable pageable);
 
     T create (T Dto);
 

@@ -1,8 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:bundle basename="messages"/>
+<fmt:setLocale value="${sessionScope.locale}"/>
 <c:if test="${sessionScope.lang != null}">
-    <fmt:setLocale value="${sessionScope.lang}"/>
+    <fmt:setLocale value="${sessionScope.locale}"/>
 </c:if>
 <html>
 <head>
@@ -10,7 +11,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<jsp:include page="jsp/navbar.jsp"/>
+<jsp:include page="navbar.jsp"/>
 <h1>Bookstore</h1>
 <img src="images/bookstore.png" alt="Bookstore">
 <c:if test="${sessionScope.user != null}">

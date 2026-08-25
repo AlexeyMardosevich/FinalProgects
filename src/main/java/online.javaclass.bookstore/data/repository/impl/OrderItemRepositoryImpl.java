@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.data.repository.impl;
 
 import online.javaclass.bookstore.data.entities.OrderItem;
@@ -57,3 +58,4 @@ public class OrderItemRepositoryImpl implements OrderItemRepository {
         return delete;
     }
 }
+*/

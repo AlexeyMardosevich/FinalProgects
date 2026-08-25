@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.data.repository.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -78,13 +79,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean deleteById(Long id) {
+    public void deleteById(Long id) {
         User user = manager.find(User.class, id);
-        boolean delete = false;
-        if (user != null) {
             manager.remove(user);
-            delete = true;
-        }
-        return delete;
     }
 }
+*/

@@ -1,14 +1,12 @@
 package online.javaclass.bookstore.data.repository;
 
 import online.javaclass.bookstore.data.entities.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+public interface UserRepository extends JpaRepository<User, Long> {
 
-public interface UserRepository extends AbstractRepository<Long, User> {
-
+    @Query("select u from User u where u.email = :email")
     User findByEmail(String email);
 
-    List<User> getAll(int size, int offset);
-
-    int countAll();
 }
