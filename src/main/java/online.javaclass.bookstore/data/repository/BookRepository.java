@@ -1,11 +1,8 @@
 package online.javaclass.bookstore.data.repository;
 
 import online.javaclass.bookstore.data.entities.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+public interface BookRepository extends JpaRepository<Book, Long> {
 
-public interface BookRepository extends AbstractRepository<Long, Book> {
-    List<Book> getAll(int size, int offset);
-
-    int countAll();
 }

@@ -2,8 +2,6 @@ package online.javaclass.bookstore.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.javaclass.bookstore.data.dto.PageResponseDto;
-import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.UserRepository;
 import online.javaclass.bookstore.mapper.ServiceDtoMapper;
@@ -11,6 +9,8 @@ import online.javaclass.bookstore.service.DigestService;
 import online.javaclass.bookstore.service.UserService;
 import online.javaclass.bookstore.service.dto.UserDto;
 import online.javaclass.bookstore.service.exception.AppException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,31 +42,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto find(Long id) {
-        User user = userRepository.find(id);
-        if (user == null) {
-            throw new AppException("Couldn't find user with id:" + id);
-        }
-
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException("Couldn't find user with id:" + id));
         return toDto(user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userRepository.getAll()
+        return userRepository.findAll()
                 .stream()
                 .map(ServiceDtoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PageResponseDto<UserDto> getAll(PageableDto pageableDto) {
-        List<UserDto> users = userRepository
-                .getAll(pageableDto.getPageSize(), pageableDto.getOffset())
-                .stream()
-                .map(ServiceDtoMapper::toDto)
-                .collect(Collectors.toList());
-        int totalItems = userRepository.countAll();
-        return new PageResponseDto<>(users, pageableDto.getPage(), pageableDto.getPageSize(), totalItems);
+    public Page<UserDto> getAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(ServiceDtoMapper::toDto);
     }
 
     @Override
@@ -86,7 +78,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = toEntity(userDto);
         user.setPassword(digestService.hash(userDto.getPassword()));
-        User createdUser = userRepository.create(user);
+        User createdUser = userRepository.save(user);
         return toDto(createdUser);
     }
 
@@ -96,15 +88,14 @@ public class UserServiceImpl implements UserService {
         if (userDto == null || userDto.getId() == null) {
             throw new AppException("User id must not be null");
         }
-        User user = userRepository.find(userDto.getId());
-        if (user == null) {
-            throw new AppException("Couldn't find user with id: " + userDto.getId());
-        }
+        User user = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> new AppException("Couldn't find user with id: " + userDto.getId()));
         user.setEmail(userDto.getEmail());
         user.setRole(User.Role.valueOf(userDto.getRole()));
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
-        User updatedUser = userRepository.update(user);
+
+        User updatedUser = userRepository.save(user);
         return toDto(updatedUser);
     }
 
@@ -114,9 +105,10 @@ public class UserServiceImpl implements UserService {
         if (id == null) {
             throw new AppException("User id must not be null");
         }
-        if (!userRepository.deleteById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new AppException("Couldn't find user with id: " + id);
         }
+        userRepository.deleteById(id);
         return true;
     }
 }

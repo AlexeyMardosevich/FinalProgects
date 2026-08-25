@@ -1,10 +1,12 @@
 package online.javaclass.bookstore.controller.command.impl;
 
 import lombok.RequiredArgsConstructor;
-import online.javaclass.bookstore.data.dto.PageResponseDto;
-import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.service.OrderService;
 import online.javaclass.bookstore.service.dto.OrderDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +30,23 @@ public class OrderController {
     }
 
     @GetMapping("/getAll")
-    public String getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int pageSize, Model model) {
-
-        PageableDto pageableDto = new PageableDto(page, pageSize);
-        PageResponseDto<OrderDto> response =
-                orderService.getAll(pageableDto);
-        model.addAttribute("orders" , response.getItems());
-        model.addAttribute("page" , response.getPage());
-        model.addAttribute("pageSize" , response.getPageSize());
-        model.addAttribute("totalItems" , response.getTotalItems());
-        model.addAttribute("totalPages" , response.getTotalPages());
+    public String getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            Model model) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<OrderDto> orderPage = orderService.getAll(pageable);
+        model.addAttribute("orders", orderPage.getContent());
+        model.addAttribute("orderPage", orderPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         return "orders";
     }
 

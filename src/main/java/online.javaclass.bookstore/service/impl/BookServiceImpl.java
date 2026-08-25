@@ -2,21 +2,20 @@ package online.javaclass.bookstore.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import online.javaclass.bookstore.data.dto.PageResponseDto;
-import online.javaclass.bookstore.data.dto.PageableDto;
 import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.repository.BookRepository;
 import online.javaclass.bookstore.mapper.ServiceDtoMapper;
 import online.javaclass.bookstore.service.BookService;
 import online.javaclass.bookstore.service.dto.BookDto;
 import online.javaclass.bookstore.service.exception.AppException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toDto;
 import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 
@@ -25,64 +24,75 @@ import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
+
     private final BookRepository bookRepository;
 
     @Override
-    public int countAll() {
-        return bookRepository.countAll();
-    }
-
-    @Override
     public BookDto find(Long id) {
-        Book book = bookRepository.find(id);
-
-        if (isNull(book)) {
-            throw new AppException("Couldn't find book with id:" + id);
-        }
-
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new AppException("Couldn't find book with id:" + id));
         return toDto(book);
     }
 
     @Override
     public List<BookDto> getAll() {
-        return bookRepository.getAll().stream().
+        return bookRepository.findAll()
+                .stream().
                 map(ServiceDtoMapper::toDto).
                 collect(Collectors.toList());
     }
 
-    public PageResponseDto<BookDto> getAll(PageableDto pageableDto) {
-        List<BookDto> books = bookRepository
-                .getAll(
-                        pageableDto.getPageSize(),
-                        pageableDto.getOffset()
-                )
-                .stream()
-                .map(ServiceDtoMapper::toDto)
-                .collect(Collectors.toList());
-        int totalItems = bookRepository.countAll();
-        return new PageResponseDto<>(books, pageableDto.getPage(), pageableDto.getPageSize(), totalItems);
+    @Override
+    public Page<BookDto> getAll(Pageable pageable) {
+        return bookRepository.findAll(pageable)
+                .map(ServiceDtoMapper::toDto);
     }
-
 
     @Override
     public BookDto create(BookDto bookDto) {
+        if (bookDto == null) {
+            throw new AppException("Book must not be null");
+        }
+        if (bookDto.getName() == null || bookDto.getName().isBlank()) {
+            throw new AppException("Name must not be blank");
+        }
+        if (bookDto.getAuthor() == null || bookDto.getAuthor().isBlank()) {
+            throw new AppException("Author must not be blank");
+        }
+        if (bookDto.getPrice() == null) {
+            throw new AppException("Price must be greater than zero");
+        }
         Book book = toEntity(bookDto);
-        //должна быть валидация (проверка логина, пароля и т.д)
-        Book created = bookRepository.create(book);
-
+        Book created = bookRepository.save(book);
         return toDto(created);
     }
 
     @Override
     public BookDto update(BookDto bookDto) {
-        Book book = toEntity(bookDto);
-        Book update = bookRepository.update(book);
+        if (bookDto == null || bookDto.getId() == null) {
+            throw new AppException("Book id must not be null");
+        }
 
-        return toDto(update);
+        Book book = bookRepository.findById(bookDto.getId())
+                .orElseThrow(() -> new AppException("Couldn't find book with id: " + bookDto.getId()));
+
+        book.setName(bookDto.getName());
+        book.setAuthor(bookDto.getAuthor());
+        book.setPrice(bookDto.getPrice());
+
+        Book updated = bookRepository.save(book);
+        return toDto(updated);
     }
 
     @Override
     public boolean deleteById(Long id) {
-        return bookRepository.deleteById(id);
+        if (id == null) {
+            throw new AppException("Book id must not be null");
+        }
+        if (!bookRepository.existsById(id)) {
+            throw new AppException("Couldn't find book with id: " + id);
+        }
+        bookRepository.deleteById(id);
+        return true;
     }
 }

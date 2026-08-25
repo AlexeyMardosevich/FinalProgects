@@ -1,3 +1,4 @@
+/*
 package online.javaclass.bookstore.data.repository;
 
 import java.util.List;
@@ -14,3 +15,4 @@ public interface AbstractRepository<K, T> {
 
     boolean deleteById(K id);
 }
+*/

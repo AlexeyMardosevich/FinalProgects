@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<fmt:bundle basename="messages"/>
+<fmt:setLocale value="${sessionScope.locale}"/>
 
 <html>
 <head>
-    <title>Edit order item</title>
+    <title>Create order item</title>
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/style.css">
 </head>
@@ -11,24 +13,19 @@
 
 <jsp:include page="navbar.jsp"/>
 
-<h1>Edit order item</h1>
+<h1>Create order item</h1>
 
-<form action="${pageContext.request.contextPath}/orders/items/${item.id}/edit"
+<form action="${pageContext.request.contextPath}/orders/${orderId}/items/create"
       method="post">
 
     <input type="hidden"
-           name="id"
-           value="${item.id}">
-
-    <input type="hidden"
            name="orderId"
-           value="${item.orderId}">
+           value="${orderId}">
 
     <label for="bookId">Book id</label>
     <input id="bookId"
            type="number"
            name="bookId"
-           value="${item.bookId}"
            min="1"
            required>
 
@@ -38,18 +35,18 @@
     <input id="quantity"
            type="number"
            name="quantity"
-           value="${item.quantity}"
+           value="1"
            min="1"
            required>
 
     <br/><br/>
 
-    <input type="submit" value="Save">
+    <input type="submit" value="Create">
 </form>
 
 <br/>
 
-<a href="${pageContext.request.contextPath}/orders/${item.orderId}/items">
+<a href="${pageContext.request.contextPath}/orders/${orderId}/items">
     Back to items
 </a>
 

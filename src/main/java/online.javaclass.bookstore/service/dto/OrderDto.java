@@ -12,7 +12,7 @@ import java.util.List;
 public class OrderDto {
     private Long id;
     private User user;
-    private BigDecimal coast;
+    private BigDecimal cost;
     private Order.Status status;
     private List<OrderItem> items;
 

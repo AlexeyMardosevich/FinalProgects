@@ -1,8 +1,6 @@
 package online.javaclass.bookstore.controller.command.impl;
 
-
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.service.BookService;
 import online.javaclass.bookstore.service.dto.BookDto;
 import org.springframework.stereotype.Controller;
@@ -13,11 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
 import java.util.List;
 
-
 @Controller
-@Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/books")
 public class BookController {
@@ -45,9 +42,8 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    public String createBook(@ModelAttribute("book") BookDto bookDto) {
+    public String createBook(@ModelAttribute("book") @Valid BookDto bookDto) {
         BookDto createdBook = bookService.create(bookDto);
-
         return "redirect:/books/" + createdBook.getId();
     }
 
