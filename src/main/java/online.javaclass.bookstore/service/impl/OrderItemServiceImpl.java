@@ -9,7 +9,6 @@ import online.javaclass.bookstore.data.repository.BookRepository;
 import online.javaclass.bookstore.data.repository.OrderItemRepository;
 import online.javaclass.bookstore.data.repository.OrderRepository;
 import online.javaclass.bookstore.service.OrderItemService;
-import online.javaclass.bookstore.service.dto.OrderItemDto;
 import online.javaclass.bookstore.service.exception.AppException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final BookRepository bookRepository;
 
     @Override
-    public List<OrderItemDto> findAllByOrderId(Long orderId) {
+    public List<online.javaclass.bookstore.service.dto.OrderItemDto> findAllByOrderId(Long orderId) {
         validateId(orderId, "Order id");
 
         return orderItemRepository.findAllByOrderId(orderId)
@@ -37,7 +36,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItemDto find(Long id) {
+    public online.javaclass.bookstore.service.dto.OrderItemDto find(Long id) {
         validateId(id, "Order item id");
         OrderItem orderItem = orderItemRepository.findById(id)
                 .orElseThrow(() -> new AppException("Couldn't find order item with id: " + id));
@@ -45,7 +44,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public List<OrderItemDto> getAll() {
+    public List<online.javaclass.bookstore.service.dto.OrderItemDto> getAll() {
         return orderItemRepository.findAll()
                 .stream()
                 .map(this::toDto)
@@ -54,7 +53,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     @Transactional
-    public OrderItemDto create(OrderItemDto dto) {
+    public online.javaclass.bookstore.service.dto.OrderItemDto create(online.javaclass.bookstore.service.dto.OrderItemDto dto) {
         validateDto(dto);
 
         Order order = orderRepository.findById(dto.getOrderId())
@@ -73,7 +72,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     @Transactional
-    public OrderItemDto update(OrderItemDto dto) {
+    public online.javaclass.bookstore.service.dto.OrderItemDto update(online.javaclass.bookstore.service.dto.OrderItemDto dto) {
         if (dto == null || dto.getId() == null) {
             throw new AppException("Order item id must not be null");
         }
@@ -104,8 +103,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         return true;
     }
 
-    private OrderItemDto toDto(OrderItem entity) {
-        OrderItemDto dto = new OrderItemDto();
+    private online.javaclass.bookstore.service.dto.OrderItemDto toDto(OrderItem entity) {
+        online.javaclass.bookstore.service.dto.OrderItemDto dto = new online.javaclass.bookstore.service.dto.OrderItemDto();
         dto.setId(entity.getId());
         dto.setQuantity(entity.getQuantity());
         dto.setPrice(entity.getPrice());
@@ -119,7 +118,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         return dto;
     }
 
-    private void validateDto(OrderItemDto dto) {
+    private void validateDto(online.javaclass.bookstore.service.dto.OrderItemDto dto) {
         if (dto == null) {
             throw new AppException("Order item must not be null");
         }

@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDto find(Long id) {
+    public UserDto find(java.lang.Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException("Couldn't find user with id:" + id));
         return toDto(user);
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public boolean deleteById(Long id) {
+    public boolean deleteById(java.lang.Long id) {
         if (id == null) {
             throw new AppException("User id must not be null");
         }

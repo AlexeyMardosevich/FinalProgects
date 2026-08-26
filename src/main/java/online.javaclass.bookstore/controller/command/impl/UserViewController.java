@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +24,7 @@ import javax.validation.Valid;
 @RequestMapping("/users")
 @Log4j2
 @RequiredArgsConstructor
-public class UserController {
+public class UserViewController {
     private final UserService userService;
 
     @GetMapping("/{id}")
@@ -56,14 +57,18 @@ public class UserController {
     }
 
     @GetMapping("/create")
-    private String createUserForm() {
+    private String createUserForm(Model model) {
+        model.addAttribute("user", new UserDto());
         return "createUserForm";
     }
 
     @PostMapping("/create")
-    private String createUSer(@ModelAttribute @Valid UserDto userDto) {
-        userService.update(userDto);
-        return "redirect:/users/" + userDto.getId();
+    private String createUSer( @Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "createUserForm";
+        }
+        UserDto createdUser = userService.create(userDto);
+        return "redirect:/users/" + createdUser.getId();
     }
 
     @GetMapping("/edit/{id}")

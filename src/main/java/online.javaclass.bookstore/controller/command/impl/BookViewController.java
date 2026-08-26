@@ -5,6 +5,7 @@ import online.javaclass.bookstore.service.BookService;
 import online.javaclass.bookstore.service.dto.BookDto;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,8 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/books")
-public class BookController {
+public class BookViewController {
+
     private final BookService bookService;
 
 
@@ -42,7 +44,10 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    public String createBook(@ModelAttribute("book") @Valid BookDto bookDto) {
+    public String createBook(@Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "createBookForm";
+        }
         BookDto createdBook = bookService.create(bookDto);
         return "redirect:/books/" + createdBook.getId();
     }
@@ -56,8 +61,10 @@ public class BookController {
     }
 
     @PostMapping("/edit/{id}")
-    public String editBook(@PathVariable Long id, @ModelAttribute("book") BookDto bookDto) {
-        bookDto.setId(id);
+    public String editBook(@PathVariable Long id,@Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "editBookForm";
+        }
         bookService.update(bookDto);
         return "redirect:/books/" + id;
     }

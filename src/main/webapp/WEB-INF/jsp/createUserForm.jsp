@@ -1,40 +1,115 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<fmt:bundle basename="messages"/>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+
+<%@ taglib prefix="fmt"
+           uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%@ taglib prefix="form"
+           uri="http://www.springframework.org/tags/form" %>
+
 <fmt:setLocale value="${sessionScope.locale}"/>
+<fmt:setBundle basename="messages" var="msg"/>
 
 <html>
 <head>
     <title>Create user</title>
+
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/style.css">
 </head>
+
 <body>
+
 <jsp:include page="navbar.jsp"/>
+
 <h1>Create user</h1>
-<form action="${pageContext.request.contextPath}/users/create" method="post">
-    <label for="input-email">Email</label>
-    <input id="input-email" type="email" name="email" required>
-    <br/><br/>
-    <label for="input-password">Password</label>
-    <input id="input-password" type="password" name="password" required>
-    <br/><br/>
-    <label for="input-role">Role</label>
-    <select id="input-role" name="role" required>
-        <option value="GUEST">GUEST</option>
-        <option value="USER" selected>USER</option>
-        <option value="MANAGER">MANAGER</option>
-        <option value="ADMIN">ADMIN</option>
-    </select>
-    <br/><br/>
-    <label for="input-first-name">First name</label>
-    <input id="input-first-name" type="text" name="firstName">
-    <br/><br/>
-    <label for="input-last-name">Last name</label>
-    <input id="input-last-name" type="text" name="lastName">
-    <br/><br/>
-    <input type="submit" value="Create">
-</form>
+
+<form:form
+        method="post"
+        action="${pageContext.request.contextPath}/users/create"
+        modelAttribute="user">
+
+    <form:errors path="*" cssClass="error"/>
+
+    <div>
+        <label for="input-email">Email</label>
+
+        <form:input
+                id="input-email"
+                path="email"
+                type="email"
+                required="required"/>
+
+        <form:errors path="email" cssClass="error"/>
+    </div>
+
+    <br/>
+
+    <div>
+        <label for="input-password">Password</label>
+
+        <form:password
+                id="input-password"
+                path="password"
+                required="required"/>
+
+        <form:errors path="password" cssClass="error"/>
+    </div>
+
+    <br/>
+
+    <div>
+        <label for="input-role">Role</label>
+
+        <form:select
+                id="input-role"
+                path="role"
+                required="required">
+
+            <form:option value="GUEST" label="GUEST"/>
+            <form:option value="USER" label="USER"/>
+            <form:option value="MANAGER" label="MANAGER"/>
+            <form:option value="ADMIN" label="ADMIN"/>
+
+        </form:select>
+
+        <form:errors path="role" cssClass="error"/>
+    </div>
+
+    <br/>
+
+    <div>
+        <label for="input-first-name">First name</label>
+
+        <form:input
+                id="input-first-name"
+                path="firstName"/>
+
+        <form:errors path="firstName" cssClass="error"/>
+    </div>
+
+    <br/>
+
+    <div>
+        <label for="input-last-name">Last name</label>
+
+        <form:input
+                id="input-last-name"
+                path="lastName"/>
+
+        <form:errors path="lastName" cssClass="error"/>
+    </div>
+
+    <br/>
+
+    <button type="submit">Create</button>
+
+</form:form>
+
 <br/>
-<a href="${pageContext.request.contextPath}/users/getAll">Back to users</a>
+
+<a href="${pageContext.request.contextPath}/users/getAll">
+    Back to users
+</a>
+
 </body>
 </html>

@@ -2,7 +2,6 @@ package online.javaclass.bookstore.mapper;
 
 import online.javaclass.bookstore.data.dto.BookDto;
 import online.javaclass.bookstore.data.dto.OrderDto;
-import online.javaclass.bookstore.data.dto.OrderItemDto;
 import online.javaclass.bookstore.data.dto.UserDto;
 import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.entities.Order;
@@ -63,8 +62,8 @@ public class EntityDtoMapper {
         return orderDto;
     }
 
-    public static OrderItemDto toDto(OrderItem orderItem, long orderId) {
-        OrderItemDto orderItemDto = new OrderItemDto();
+    public static online.javaclass.bookstore.data.dto.OrderItemDto toDto(OrderItem orderItem, long orderId) {
+        online.javaclass.bookstore.data.dto.OrderItemDto orderItemDto = new online.javaclass.bookstore.data.dto.OrderItemDto();
         orderItemDto.setId(orderItemDto.getId());
         orderItemDto.setOrderId(orderItemDto.getOrderId());
         orderItemDto.setBookId(orderItemDto.getBookId());

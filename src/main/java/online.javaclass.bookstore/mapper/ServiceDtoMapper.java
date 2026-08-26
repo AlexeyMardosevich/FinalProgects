@@ -2,13 +2,17 @@ package online.javaclass.bookstore.mapper;
 
 import online.javaclass.bookstore.data.entities.Book;
 import online.javaclass.bookstore.data.entities.Order;
+import online.javaclass.bookstore.data.entities.OrderItem;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.service.dto.BookDto;
 import online.javaclass.bookstore.service.dto.OrderDto;
+import online.javaclass.bookstore.service.dto.OrderItemDto;
 import online.javaclass.bookstore.service.dto.UserDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -18,10 +22,8 @@ public class ServiceDtoMapper {
         Order order = new Order();
 
         order.setId(orderDto.getId());
-        order.setUser(orderDto.getUser());
-        order.setCost(BigDecimal.valueOf(0.0));
         order.setStatus(orderDto.getStatus());
-        order.setItems(orderDto.getItems());
+        order.setCost(BigDecimal.ZERO);
 
         return order;
     }
@@ -54,12 +56,35 @@ public class ServiceDtoMapper {
         OrderDto orderDto = new OrderDto();
 
         orderDto.setId(order.getId());
+        if (order.getUser() != null) {
+            orderDto.setUserId(order.getUser().getId());
+        }
+        orderDto.setCost(order.getCost());
         orderDto.setStatus(order.getStatus());
-        orderDto.setCost(BigDecimal.valueOf(0.0));
-        orderDto.setUser(order.getUser());
-        orderDto.setItems(order.getItems());
-
+        if (order.getItems() != null) {
+            List<OrderItemDto> items = order.getItems()
+                    .stream()
+                    .map(ServiceDtoMapper::toDto)
+                    .collect(Collectors.toList());
+            orderDto.setItems(items);
+        }
         return orderDto;
+    }
+
+    public static OrderItemDto toDto(OrderItem item) {
+        OrderItemDto dto = new OrderItemDto();
+
+        dto.setId(item.getId());
+        dto.setQuantity(item.getQuantity());
+        dto.setPrice(item.getPrice());
+        if (item.getOrder() != null) {
+            dto.setOrderId(item.getOrder().getId());
+        }
+        if (item.getBook() != null) {
+            dto.setBookId(item.getBook().getId());
+            dto.setBookName(item.getBook().getName());
+        }
+        return dto;
     }
 
     public static UserDto toDto(User user) {
