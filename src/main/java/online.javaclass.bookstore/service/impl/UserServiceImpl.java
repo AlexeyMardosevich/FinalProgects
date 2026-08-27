@@ -11,6 +11,7 @@ import online.javaclass.bookstore.service.dto.UserDto;
 import online.javaclass.bookstore.service.exception.AppException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final DigestService digestService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto login(String email, String password) {

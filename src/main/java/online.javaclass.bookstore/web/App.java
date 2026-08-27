@@ -12,7 +12,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "online.javaclass.bookstore")
 public class App implements WebMvcConfigurer {
 
     public static void main(String[] args) {

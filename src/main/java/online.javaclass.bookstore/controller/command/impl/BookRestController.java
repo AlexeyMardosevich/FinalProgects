@@ -80,8 +80,9 @@ public class BookRestController {
     }
 
     private URI getLocation(BookDto bookDto) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/books/{id}")
+        return ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
                 .buildAndExpand(bookDto.getId())
                 .toUri();
     }
