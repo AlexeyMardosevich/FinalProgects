@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -64,28 +66,36 @@ public class SecurityConfig {
                 .mvcMatchers("/cart/**", "/api/cart/**", "/api/orders/cart/**")
                     .authenticated()
 
-                .mvcMatchers("/login", "/login/**")
-                    .permitAll()
-
                 .anyRequest()
                     .authenticated()
                 .and()
 
                 .formLogin()
                     .loginPage("/login")
-                    .defaultSuccessUrl("/")
-                    .failureUrl("/login")
+                    .loginProcessingUrl("/login")
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .defaultSuccessUrl("/", true)
+                    .failureUrl("/login?error=true")
+                    .permitAll()
                     .and()
 
                 .logout()
-                    .logoutUrl("/login/logout")
+                    .logoutUrl("/logout")
                     .clearAuthentication(true)
+                    .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
-                    .logoutSuccessUrl("/login")
+                    .logoutSuccessUrl("/login?logout=true")
                     .permitAll()
-                    .and()
+                .and()
                 .build();
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
     @Bean
     public UserDetailsService userDetailsService(DataSource dataSource){
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
@@ -97,4 +107,8 @@ public class SecurityConfig {
     public HttpSessionEventPublisher httpSessionEventPublisher(){
         return new HttpSessionEventPublisher();
     }
+  /*  @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }*/
 }

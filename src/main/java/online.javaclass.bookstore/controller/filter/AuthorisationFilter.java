@@ -19,10 +19,14 @@ public class AuthorisationFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String command = req.getParameter("command");
+        if (command == null) {
+            chain.doFilter(req, res);
+            return;
+        }
         HttpSession session = req.getSession();
         if (requireAuthorisation(command)) {
             UserDto userDto = (UserDto) session.getAttribute("user");
-            if (!userDto.getRole().equals("admin")) {
+            if (userDto == null || !"admin".equals(userDto.getRole())) {
                 req.getRequestDispatcher("jsp/error.jsp").forward(req, res);
                 return;
             }

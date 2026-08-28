@@ -19,8 +19,8 @@ values ('ivan.petrov@example.com', '{bcrypt}$2a$12$ddik3OaHjj1IwOPikFoRZ.0hReu0i
        ('marina.fedorenko@example.com', '{bcrypt}$2a$12$hNnKU/r9FTQBgGgmVuttyOA4K3Nsn4n9YEjudjXbZ3zvmMsQkRbSK','user', 'Marina', 'Fedorenko'),
        ('viktor.orlov@example.com', '{bcrypt}$2a$12$n0vGP6RhBsQTkWwu92n07.yHFvqt71rYzYX3iQnLmYJw9NOyzCAiK','user', 'Viktor', 'Orlov'),
        ('svetlana.baranova@example.com', '{bcrypt}$2a$12$zo5ySttZynoITWyz5dl7oez5iWxacOFQ97MfVvB.11I1dF/uMy8iq','user', 'Svetlana', 'Baranova'),
-       ('alex', '{bcrypt}$2a$12$bq19xQxiLggyAooFyA.JD.A00qHRC4RfPrPT7Gw0uBMUAb71wWmAu', 'admin', 'Alex', 'Mardosevich'),
-       ('manager', '{bcrypt}$2a$12$y8dD9mElhEMYMQC8BYNqau64keRQ3.BG9edCeulLa2BIQriNarGNW', 'manager', 'manager', 'manager'),
-       ('guest', '{bcrypt}$2a$12$vOUzQFuUMUfsxrQSCPGGjeO1JA56PJYEKz7QOoVrQzlyioqrG2PCO', 'guest', 'guest', 'guest'),
-       ('user', '{bcrypt}$2a$12$goPDa.HCyXlchc9ZotgL5Oo3nhm01/9n8DtmtsuzHbsgtdOouNvRS', 'user', 'user', 'user');
+       ('alex@com', '{bcrypt}$2a$12$bq19xQxiLggyAooFyA.JD.A00qHRC4RfPrPT7Gw0uBMUAb71wWmAu', 'admin', 'Alex', 'Mardosevich'),
+       ('manager@com', '{bcrypt}$2a$12$y8dD9mElhEMYMQC8BYNqau64keRQ3.BG9edCeulLa2BIQriNarGNW', 'manager', 'manager', 'manager'),
+       ('guest@com', '{bcrypt}$2a$12$vOUzQFuUMUfsxrQSCPGGjeO1JA56PJYEKz7QOoVrQzlyioqrG2PCO', 'guest', 'guest', 'guest'),
+       ('user@com', '{bcrypt}$2a$12$goPDa.HCyXlchc9ZotgL5Oo3nhm01/9n8DtmtsuzHbsgtdOouNvRS', 'user', 'user', 'user');
 select * from users;

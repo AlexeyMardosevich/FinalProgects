@@ -3,7 +3,11 @@ package online.javaclass.bookstore.web;
 import online.javaclass.bookstore.web.interception.MyInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,10 +17,17 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import java.util.Locale;
 
 @SpringBootApplication(scanBasePackages = "online.javaclass.bookstore")
-public class App implements WebMvcConfigurer {
+@EntityScan("online.javaclass.bookstore")
+@EnableJpaRepositories("online.javaclass.bookstore")
+public class App extends SpringBootServletInitializer implements WebMvcConfigurer {
 
     public static void main(String[] args) {
         SpringApplication.run(App.class);
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(App.class);
     }
 
     @Override

@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import online.javaclass.bookstore.data.entities.User;
 import online.javaclass.bookstore.data.repository.UserRepository;
 import online.javaclass.bookstore.mapper.ServiceDtoMapper;
-import online.javaclass.bookstore.service.DigestService;
 import online.javaclass.bookstore.service.UserService;
 import online.javaclass.bookstore.service.dto.UserDto;
 import online.javaclass.bookstore.service.exception.AppException;
@@ -27,14 +26,12 @@ import static online.javaclass.bookstore.mapper.ServiceDtoMapper.toEntity;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final DigestService digestService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto login(String email, String password) {
         User user = userRepository.findByEmail(email);
-        String hashed = digestService.hash(password);
-        if (user == null || !user.getPassword().equals(hashed)) {
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             log.warn("Login failed for email: {}", email);
             throw new AppException("Invalid email or password" + email);
         }
@@ -79,7 +76,7 @@ public class UserServiceImpl implements UserService {
             throw new AppException("User with email " + userDto.getEmail() + " already exists");
         }
         User user = toEntity(userDto);
-        user.setPassword(digestService.hash(userDto.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         User createdUser = userRepository.save(user);
         return toDto(createdUser);
     }

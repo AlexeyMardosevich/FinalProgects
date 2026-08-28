@@ -7,36 +7,24 @@
 <html>
 <head>
     <title>Order</title>
-
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
-
 <body>
-
 <jsp:include page="navbar.jsp"/>
-
 <h1>Order</h1>
-
 <h2>Id</h2>
 <p>${order.id}</p>
-
 <h2>User</h2>
 <p>${order.user.email}</p>
-
 <h2>Status</h2>
 <p>${order.status}</p>
-
 <h2>Cost</h2>
 <p>${order.cost}</p>
-
 <h2>Items</h2>
-
 <c:choose>
     <c:when test="${empty order.items}">
         <p>Order has no items.</p>
     </c:when>
-
     <c:otherwise>
         <table>
             <thead>
@@ -48,7 +36,6 @@
                 <th>Total</th>
             </tr>
             </thead>
-
             <tbody>
             <c:forEach items="${order.items}" var="item">
                 <tr>
@@ -65,12 +52,7 @@
         </table>
     </c:otherwise>
 </c:choose>
-
 <br/>
-
-<a href="${pageContext.request.contextPath}/orders/getAll">
-    Back to orders
-</a>
-
+<a href="${pageContext.request.contextPath}/orders/getAll">Back to orders</a>
 </body>
 </html>

@@ -18,6 +18,10 @@ public class AuthenticationFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String command = req.getParameter("command");
+        if (command == null) {
+            chain.doFilter(req, res);
+            return;
+        }
         if (isRequireAuthentication(command)) {
             HttpSession session = req.getSession();
             if (session.getAttribute("user") == null) {

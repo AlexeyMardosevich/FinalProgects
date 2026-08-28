@@ -13,7 +13,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 @Controller
 @ControllerAdvice
-public class ErrorController {
+public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
 
     @GetMapping("/error")
     public String error() {

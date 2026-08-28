@@ -7,27 +7,17 @@
 <html>
 <head>
     <title>Order items</title>
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
-
 <body>
-
 <jsp:include page="navbar.jsp"/>
-
 <h1>Order items</h1>
-
-<a href="${pageContext.request.contextPath}/orders/${orderId}/items/create">
-    Add item
-</a>
-
+<a href="${pageContext.request.contextPath}/orders/${orderId}/items/create">Add item</a>
 <br/><br/>
-
 <c:choose>
     <c:when test="${empty items}">
         <h2>No items found</h2>
     </c:when>
-
     <c:otherwise>
         <table>
             <thead>
@@ -40,7 +30,6 @@
                 <th>Actions</th>
             </tr>
             </thead>
-
             <tbody>
             <c:forEach items="${items}" var="item">
                 <tr>
@@ -49,19 +38,10 @@
                     <td>${item.quantity}</td>
                     <td>${item.price}</td>
                     <td>${item.total}</td>
-
                     <td>
-                        <a href="${pageContext.request.contextPath}/orders/items/${item.id}/edit">
-                            Edit
-                        </a>
-
-                        <form action="${pageContext.request.contextPath}/orders/items/delete/${item.id}"
-                              method="post"
-                              style="display: inline">
-
-                            <input type="submit"
-                                   value="Delete"
-                                   onclick="return confirm('Delete item?')">
+                        <a href="${pageContext.request.contextPath}/orders/items/${item.id}/edit">Edit</a>
+                        <form action="${pageContext.request.contextPath}/orders/items/delete/${item.id}" method="post" style="display: inline">
+                            <input type="submit" value="Delete" onclick="return confirm('Delete item?')">
                         </form>
                     </td>
                 </tr>
@@ -70,12 +50,7 @@
         </table>
     </c:otherwise>
 </c:choose>
-
 <br/>
-
-<a href="${pageContext.request.contextPath}/orders/${orderId}">
-    Back to order
-</a>
-
+<a href="${pageContext.request.contextPath}/orders/${orderId}"></a>
 </body>
 </html>
