@@ -33,10 +33,9 @@ public class User {
     private String lastName;
 
     public enum Role {
-        guest,
-        user,
-        manager,
-        admin
+        GUEST,
+        USER,
+        MANAGER,
+        ADMIN
     }
-
 }

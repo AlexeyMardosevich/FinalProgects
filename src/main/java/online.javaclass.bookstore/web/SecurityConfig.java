@@ -23,10 +23,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                    .invalidSessionUrl("/login")
-                    .maximumSessions(5).maxSessionsPreventsLogin(true)
-                    .and()
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                .invalidSessionUrl("/login")
+                .maximumSessions(5).maxSessionsPreventsLogin(true)
+                .and()
                 .and()
 
                 .cors()
@@ -34,59 +34,69 @@ public class SecurityConfig {
 
                 .authorizeRequests()
                 .mvcMatchers("/", "/css/**", "/js/**", "/images/**")
-                    .permitAll()
+                .permitAll()
 
                 .mvcMatchers(HttpMethod.GET, "/books/getAll", "/books/{id}", "/api/books", "/api/books/**")
                 .permitAll()
 
-                .mvcMatchers( HttpMethod.GET, "/books/create", "/books/edit/**")
-                    .hasAnyAuthority("manager")
+                .mvcMatchers(HttpMethod.GET, "/books/create", "/books/edit/**")
+                .hasAnyAuthority("MANAGER", "ADMIN")
 
-                .mvcMatchers(HttpMethod.POST, "/books/create", "/books/edit/**", "/books/delete/**","/api/books")
-                    .hasAnyAuthority("manager")
+                .mvcMatchers(HttpMethod.POST, "/books/create", "/books/edit/**", "/books/delete/**", "/api/books")
+                .hasAnyAuthority("MANAGER", "ADMIN")
 
                 .mvcMatchers(HttpMethod.PUT, "/api/books/**")
-                    .hasAuthority("manager")
+                .hasAuthority("MANAGER")
+                .mvcMatchers(HttpMethod.PUT, "/api/books/**")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers(HttpMethod.PATCH, "/api/books/**")
-                    .hasAuthority("manager")
+                .hasAuthority("MANAGER")
+                .mvcMatchers(HttpMethod.PATCH, "/api/books/**")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers(HttpMethod.DELETE, "/api/books/**")
-                    .hasAuthority("manager")
+                .hasAuthority("MANAGER")
+                .mvcMatchers(HttpMethod.DELETE, "/api/books/**")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers(HttpMethod.GET, "/orders/getAll")
-                    .hasAuthority("manager")
+                .hasAuthority("MANAGER")
+                .mvcMatchers(HttpMethod.GET, "/orders/getAll")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers(HttpMethod.POST, "/orders/create", "/orders/edit/**", "/orders/delete/**")
-                    .hasAuthority("manager")
+                .hasAuthority("MANAGER")
+                .mvcMatchers(HttpMethod.POST, "/orders/create", "/orders/edit/**", "/orders/delete/**")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers("/users/**", "/api/users/**")
-                    .hasAuthority("admin")
+                .hasAuthority("ADMIN")
 
                 .mvcMatchers("/cart/**", "/api/cart/**", "/api/orders/cart/**")
-                    .authenticated()
+                .authenticated()
 
                 .anyRequest()
-                    .authenticated()
+                .authenticated()
                 .and()
 
                 .formLogin()
-                    .loginPage("/login")
-                    .loginProcessingUrl("/login")
-                    .usernameParameter("email")
-                    .passwordParameter("password")
-                    .defaultSuccessUrl("/", true)
-                    .failureUrl("/login?error=true")
-                    .permitAll()
-                    .and()
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
+                .and()
 
                 .logout()
-                    .logoutUrl("/logout")
-                    .clearAuthentication(true)
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
-                    .logoutSuccessUrl("/login?logout=true")
-                    .permitAll()
+                .logoutUrl("/logout")
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
                 .and()
                 .build();
     }
@@ -97,18 +107,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource){
+    public UserDetailsService userDetailsService(DataSource dataSource) {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
         manager.setUsersByUsernameQuery("SELECT email, password, true AS enable FROM users WHERE email = ?");
         manager.setAuthoritiesByUsernameQuery("SELECT email, role FROM users WHERE email = ?");
         return manager;
     }
+
     @Bean
-    public HttpSessionEventPublisher httpSessionEventPublisher(){
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
         return new HttpSessionEventPublisher();
     }
-  /*  @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }*/
 }

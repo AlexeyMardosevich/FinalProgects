@@ -17,8 +17,8 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import java.util.Locale;
 
 @SpringBootApplication(scanBasePackages = "online.javaclass.bookstore")
-@EntityScan("online.javaclass.bookstore")
-@EnableJpaRepositories("online.javaclass.bookstore")
+@EntityScan(basePackages = "online.javaclass.bookstore.data.entities")
+@EnableJpaRepositories(basePackages = "online.javaclass.bookstore.data.repository")
 public class App extends SpringBootServletInitializer implements WebMvcConfigurer {
 
     public static void main(String[] args) {
